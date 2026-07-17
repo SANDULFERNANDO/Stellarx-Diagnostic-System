@@ -1,14 +1,29 @@
+# backend/app/main.py
 from fastapi import FastAPI
-from app.database import Base, engine
-from app.routers import auth
+from fastapi.middleware.cors import CORSMiddleware
 
-Base.metadata.create_all(bind=engine)
+app = FastAPI(
+    title="StellarX API",
+    description="AI-Powered Point-of-Care System for Tinea Diagnosis",
+    version="1.0.0"
+)
 
-app = FastAPI(title="StellarX Diagnostic System API")
-
-app.include_router(auth.router)
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
-def root():
-    return {"message": "StellarX API is running"}
+async def root():
+    return {
+        "message": "Welcome to StellarX API",
+        "version": "1.0.0",
+        "docs": "/docs"
+    }
+
+@app.get("/health")
+async def health():
+    return {"status": "healthy", "service": "StellarX API"}
