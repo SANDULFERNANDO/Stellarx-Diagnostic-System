@@ -31,7 +31,8 @@ ALTER TABLE healthcare_workers
 
 CREATE TABLE sessions (
     session_id      CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    user_id         CHAR(36) NOT NULL,
+    -- FIX: changed from CHAR(36) to INT UNSIGNED to match healthcare_workers.user_id (raised with Sandul)
+    user_id         INT UNSIGNED NOT NULL,
     token           VARCHAR(500) NOT NULL,
     expires_at      DATETIME NOT NULL,
     created_at      DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -55,7 +56,7 @@ CREATE TABLE sessions (
 
 CREATE TABLE images (
     image_id        CHAR(36) PRIMARY KEY DEFAULT (UUID()),
-    case_id         CHAR(36) NOT NULL,
+    case_id         INT UNSIGNED NOT NULL,         -- FIX: changed from CHAR(36) to INT UNSIGNED to match healthcare_workers.user_id (raised with Sandul)
     s3_key          VARCHAR(500) NOT NULL,          -- Unique S3 path
     file_name       VARCHAR(255) NOT NULL,          -- Original filename
     file_size       INT UNSIGNED NOT NULL,           -- In bytes
