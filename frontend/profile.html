@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StellarX - Profile Management</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { stellarNavy: '#114a72', stellarDark: '#0f2d4a' } } }
+    }
+  </script>
+</head>
+<body class="bg-[#f4f7f9] min-h-screen font-sans antialiased flex flex-col md:flex-row">
+
+  <!-- Sidebar Component -->
+  <aside class="w-full md:w-64 bg-[#114a72] text-white flex flex-col justify-between p-6 shrink-0">
+    <div class="space-y-8">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="layers" class="w-6 h-6"></i>
+        <span class="text-xl font-bold tracking-wide">StellarX</span>
+      </div>
+      <nav class="space-y-2">
+        <a href="dashboard.html" class="flex items-center space-x-3 px-4 py-3 text-slate-300 hover:bg-[#0c3d5e] rounded-xl text-sm font-semibold transition-colors">
+          <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+          <span>Dashboard</span>
+        </a>
+        <a href="profile.html" class="flex items-center space-x-3 px-4 py-3 bg-[#0c3d5e] text-white rounded-xl text-sm font-semibold transition-colors">
+          <i data-lucide="user" class="w-4 h-4"></i>
+          <span>Profile</span>
+        </a>
+      </nav>
+    </div>
+    <button onclick="logout()" class="flex items-center space-x-3 px-4 py-3 text-red-300 hover:bg-red-950/30 rounded-xl text-sm font-semibold transition-colors mt-8">
+      <i data-lucide="log-out" class="w-4 h-4"></i>
+      <span>Log Out</span>
+    </button>
+  </aside>
+
+  <!-- Main Workspace Area -->
+  <main class="flex-1 p-6 md:p-10 max-w-4xl mx-auto w-full">
+    <div class="flex justify-between items-center mb-8">
+      <div>
+        <h1 class="text-3xl font-black text-slate-800 tracking-tight">User Profile</h1>
+        <p class="text-xs text-slate-400 font-medium mt-1">Manage your practitioner credentials and account details.</p>
+      </div>
+    </div>
+
+    <!-- Profile Info Card -->
+    <div class="bg-white rounded-3xl shadow-xl border border-slate-100 p-8 space-y-8">
+      
+      <!-- Top Profile Overview Layer -->
+      <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-6 pb-6 border-b border-slate-100">
+        <div class="w-24 h-24 bg-slate-100 rounded-2xl flex items-center justify-center text-[#114a72] border border-slate-200 shadow-inner">
+          <i data-lucide="user" class="w-12 h-12"></i>
+        </div>
+        <div class="text-center sm:text-left flex-1">
+          <h2 id="displayHeaderName" class="text-2xl font-black text-slate-800">Medical Professional</h2>
+          <p id="displayHeaderPosition" class="text-sm font-bold text-[#114a72] mt-0.5">Healthcare Practitioner</p>
+          <p class="text-xs text-slate-400 font-medium mt-1">System Account Status: <span class="text-emerald-500 font-bold uppercase">Active</span></p>
+        </div>
+        <div>
+          <button id="editToggleBtn" onclick="toggleEditMode()" class="px-5 py-2.5 bg-[#114a72] hover:bg-[#0c3d5e] text-white text-xs font-bold rounded-xl transition-colors shadow-md flex items-center space-x-2">
+            <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+            <span id="btnText">Edit Profile</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Detail Input Fields Grid Form -->
+      <form id="profileForm" onsubmit="saveProfileChanges(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Name Field -->
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Full Name</label>
+          <input type="text" id="profileName" disabled required
+                 class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-sky-500 disabled:opacity-75 transition-colors">
+        </div>
+
+        <!-- Position Field -->
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Position / Title</label>
+          <input type="text" id="profilePosition" disabled required placeholder="e.g. Dermatologist / Medical Student"
+                 class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-sky-500 disabled:opacity-75 transition-colors">
+        </div>
+
+        <!-- Email Field -->
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Email Address</label>
+          <input type="email" id="profileEmail" disabled required
+                 class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-sky-500 disabled:opacity-75 transition-colors">
+        </div>
+
+        <!-- Phone Field -->
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Contact Number</label>
+          <input type="text" id="profilePhone" disabled required
+                 class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-sky-500 disabled:opacity-75 transition-colors">
+        </div>
+
+        <!-- Save Action Footer Block (Hidden until edit mode activated) -->
+        <div id="saveActionsBlock" class="md:col-span-2 hidden flex justify-end space-x-3 pt-4 border-t border-slate-100">
+          <button type="button" onclick="cancelEditMode()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors">
+            Cancel
+          </button>
+          <button type="submit" class="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold rounded-xl transition-colors shadow-md">
+            Save Changes
+          </button>
+        </div>
+      </form>
+
+    </div>
+  </main>
+
+  <script>
+    let isEditMode = false;
+    let currentUser = null;
+
+    // Load user data on startup
+    window.onload = function() {
+      lucide.createIcons();
+      loadUserProfile();
+    }
+
+    function loadUserProfile() {
+      currentUser = JSON.parse(localStorage.getItem('stellarX_current_user'));
+      
+      if (!currentUser) {
+        window.location.href = 'login.html';
+        return;
+      }
+
+      // If position or phone don't exist yet, give default values
+      if (!currentUser.position) currentUser.position = "Healthcare Practitioner";
+      if (!currentUser.phone) currentUser.phone = "+94 77 123 4567";
+
+      // Set visible inputs
+      document.getElementById('profileName').value = currentUser.name;
+      document.getElementById('profilePosition').value = currentUser.position;
+      document.getElementById('profileEmail').value = currentUser.email;
+      document.getElementById('profilePhone').value = currentUser.phone;
+
+      // Update header visualization texts
+      document.getElementById('displayHeaderName').innerText = currentUser.name;
+      document.getElementById('displayHeaderPosition').innerText = currentUser.position;
+    }
+
+    function toggleEditMode() {
+      if(isEditMode) {
+        cancelEditMode();
+        return;
+      }
+      
+      isEditMode = true;
+      document.getElementById('btnText').innerText = "Viewing Mode";
+      
+      // Enable all functional inputs
+      const fields = ['profileName', 'profilePosition', 'profileEmail', 'profilePhone'];
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        el.removeAttribute('disabled');
+        el.classList.remove('bg-slate-50');
+        el.classList.add('bg-white');
+      });
+
+      document.getElementById('saveActionsBlock').classList.remove('hidden');
+    }
+
+    function cancelEditMode() {
+      isEditMode = false;
+      document.getElementById('btnText').innerText = "Edit Profile";
+      
+      // Re-disable fields
+      const fields = ['profileName', 'profilePosition', 'profileEmail', 'profilePhone'];
+      fields.forEach(id => {
+        const el = document.getElementById(id);
+        el.setAttribute('disabled', 'true');
+        el.classList.remove('bg-white');
+        el.classList.add('bg-slate-50');
+      });
+
+      document.getElementById('saveActionsBlock').classList.add('hidden');
+      loadUserProfile(); // Revert back to original values
+    }
+
+    function saveProfileChanges(e) {
+      e.preventDefault();
+      
+      const newName = document.getElementById('profileName').value.trim();
+      const newPosition = document.getElementById('profilePosition').value.trim();
+      const newEmail = document.getElementById('profileEmail').value.trim().toLowerCase();
+      const newPhone = document.getElementById('profilePhone').value.trim();
+
+      // Update current runtime object
+      const oldEmail = currentUser.email;
+      currentUser.name = newName;
+      currentUser.position = newPosition;
+      currentUser.email = newEmail;
+      currentUser.phone = newPhone;
+
+      // Update inside the global localstorage registration index list too
+      let usersList = JSON.parse(localStorage.getItem('stellarX_users_list')) || [];
+      usersList = usersList.map(user => {
+        if(user.email === oldEmail) {
+          return { ...user, name: newName, position: newPosition, email: newEmail, phone: newPhone };
+        }
+        return user;
+      });
+
+      localStorage.setItem('stellarX_users_list', JSON.stringify(usersList));
+      localStorage.setItem('stellarX_current_user', JSON.stringify(currentUser));
+
+      alert('Profile updated successfully!');
+      cancelEditMode();
+      loadUserProfile();
+    }
+
+    function logout() {
+      localStorage.removeItem('stellarX_current_user');
+      window.location.href = 'login.html';
+    }
+  </script>
+</body>
+</html>

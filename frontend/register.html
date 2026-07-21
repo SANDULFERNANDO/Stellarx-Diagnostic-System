@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StellarX - Create Account</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { stellarNavy: '#114a72', stellarDark: '#0f2d4a' } } }
+    }
+  </script>
+</head>
+<body class="bg-[#f4f7f9] min-h-screen flex items-center justify-center p-4 antialiased font-sans">
+
+  <div class="bg-white rounded-3xl shadow-xl max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 overflow-hidden min-h-[600px]">
+    <!-- Left Panel Banner -->
+    <div class="md:col-span-5 bg-[#114a72] p-10 flex flex-col justify-between text-white">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="layers" class="w-6 h-6 text-white"></i>
+        <span class="text-xl font-bold tracking-wide">StellarX</span>
+      </div>
+      
+      <div class="my-auto space-y-4">
+        <h1 class="text-3xl font-black leading-tight">Join the AI<br>Clinical Network.</h1>
+        <p class="text-sm text-slate-300 leading-relaxed">Create an account to gain full access to state-of-the-art diagnostics, cloud patient portfolios, and secure collaboration tools.</p>
+      </div>
+
+      <div class="flex items-center space-x-2 text-xs text-slate-300">
+        <i data-lucide="shield-check" class="w-5 h-5"></i>
+        <span>Secure registry powered by <strong class="text-white">cloud authentication</strong></span>
+      </div>
+    </div>
+
+    <!-- Right Register Options -->
+    <div class="md:col-span-7 p-12 flex flex-col justify-center space-y-6">
+      <div>
+        <h2 class="text-3xl font-black text-slate-800 tracking-tight">Create Account</h2>
+        <p class="text-xs text-slate-400 font-medium mt-1">Register as a healthcare practitioner to begin clinical diagnostic submissions.</p>
+      </div>
+
+      <form class="space-y-4" onsubmit="handleRegister(event)">
+        <!-- Name -->
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Full Name</label>
+          <div class="relative">
+            <i data-lucide="user" class="w-4 h-4 text-slate-400 absolute left-3 top-3.5"></i>
+            <input type="text" id="regName" required placeholder="John Smith" 
+                   class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-500">
+          </div>
+        </div>
+
+        <!-- Email -->
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Email Address</label>
+          <div class="relative">
+            <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3 top-3.5"></i>
+            <input type="email" id="regEmail" required placeholder="name@hospital.com" 
+                   class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-500">
+          </div>
+          <p id="regEmailError" class="text-xs text-red-500 hidden mt-1">This email is already registered!</p>
+        </div>
+
+        <!-- Password -->
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Password</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-3.5"></i>
+            <input type="password" id="regPassword" required placeholder="Create a safe password" 
+                   class="w-full pl-10 pr-10 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-500">
+            <button type="button" onclick="togglePassword()" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600">
+              <i id="regPassIcon" data-lucide="eye-off" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Legal Terms Checkbox -->
+        <label class="flex items-start space-x-2 text-xs text-slate-500 cursor-pointer pt-2">
+          <input type="checkbox" required class="mt-0.5 rounded text-[#114a72] border-slate-300">
+          <span class="leading-normal">I agree to the <a href="#" class="text-[#114a72] font-bold hover:underline">Terms of Service</a> and confirm compliance with institutional data processing standards.</span>
+        </label>
+
+        <!-- Submit Button -->
+        <button type="submit" class="w-full py-3.5 bg-[#114a72] hover:bg-[#0c3d5e] text-white text-sm font-bold rounded-xl transition-colors shadow-md mt-2">
+          Register Account
+        </button>
+      </form>
+
+      <!-- Sign In Back Link -->
+      <div class="text-center text-xs text-slate-500 font-medium">
+        Already have an account? 
+        <a href="login.html" onclick="window.location.href='login.html'; return false;" class="text-[#114a72] font-bold hover:underline cursor-pointer ml-1 inline-block">
+          Sign In
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    function togglePassword() {
+      const input = document.getElementById('regPassword');
+      const icon = document.getElementById('regPassIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.setAttribute('data-lucide', 'eye');
+      } else {
+        input.type = 'password';
+        icon.setAttribute('data-lucide', 'eye-off');
+      }
+      lucide.createIcons();
+    }
+
+    function handleRegister(e) {
+      e.preventDefault();
+      const name = document.getElementById('regName').value.trim();
+      const email = document.getElementById('regEmail').value.trim().toLowerCase();
+      const password = document.getElementById('regPassword').value;
+      const errorMsg = document.getElementById('regEmailError');
+
+      let users = JSON.parse(localStorage.getItem('stellarX_users_list')) || [];
+
+      if (users.some(user => user.email === email)) {
+        errorMsg.classList.remove('hidden');
+        return;
+      }
+      errorMsg.classList.add('hidden');
+
+      const newUser = { name, email, password, phone: "+94 77 123 4567" };
+      users.push(newUser);
+      localStorage.setItem('stellarX_users_list', JSON.stringify(users));
+      localStorage.setItem('stellarX_current_user', JSON.stringify(newUser));
+
+      alert('Registration successful!');
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>
