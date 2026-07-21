@@ -6,6 +6,7 @@
   <title>StellarX - Sign In</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="api.js"></script>
   <script>
     tailwind.config = {
       theme: { extend: { colors: { stellarNavy: '#114a72', stellarDark: '#0f2d4a' } } }
@@ -107,25 +108,32 @@
       lucide.createIcons();
     }
 
-    function handleLogin(e) {
-      e.preventDefault();
-      const email = document.getElementById('emailInput').value.trim().toLowerCase();
-      const password = document.getElementById('passwordInput').value;
-      const errorMsg = document.getElementById('emailError');
-
-      const users = JSON.parse(localStorage.getItem('stellarX_users_list')) || [];
-      const matchedUser = users.find(user => user.email === email && user.password === password);
-
-      if (!matchedUser) {
+    async function handleLogin(e) {
+    e.preventDefault();
+    
+    const email = document.getElementById('emailInput').value.trim().toLowerCase();
+    const password = document.getElementById('passwordInput').value;
+    const errorMsg = document.getElementById('emailError');
+    
+    // Clear previous errors
+    errorMsg.classList.add('hidden');
+    document.getElementById('emailInput').classList.remove('border-red-400');
+    
+    try {
+        const response = await apiLogin(email, password);
+        
+        if (response.user) {
+            localStorage.setItem('user', JSON.stringify(response.user));
+        }
+        
+        window.location.href = 'dashboard.html';
+        
+    } catch (error) {
         errorMsg.classList.remove('hidden');
+        errorMsg.textContent = error.message || 'Invalid email or password!';
         document.getElementById('emailInput').classList.add('border-red-400');
-        return;
-      }
-
-      errorMsg.classList.add('hidden');
-      localStorage.setItem('stellarX_current_user', JSON.stringify(matchedUser));
-      window.location.href = 'dashboard.html';
     }
+}
   </script>
 </body>
 </html>

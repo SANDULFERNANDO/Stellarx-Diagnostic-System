@@ -6,6 +6,7 @@
   <title>StellarX - Create Account</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="api.js"></script>
   <script>
     tailwind.config = {
       theme: { extend: { colors: { stellarNavy: '#114a72', stellarDark: '#0f2d4a' } } }
@@ -113,29 +114,40 @@
       lucide.createIcons();
     }
 
-    function handleRegister(e) {
-      e.preventDefault();
-      const name = document.getElementById('regName').value.trim();
-      const email = document.getElementById('regEmail').value.trim().toLowerCase();
-      const password = document.getElementById('regPassword').value;
-      const errorMsg = document.getElementById('regEmailError');
-
-      let users = JSON.parse(localStorage.getItem('stellarX_users_list')) || [];
-
-      if (users.some(user => user.email === email)) {
+    async function handleRegister(e) {
+    e.preventDefault();
+    
+    const name = document.getElementById('regName').value.trim();
+    const email = document.getElementById('regEmail').value.trim().toLowerCase();
+    const password = document.getElementById('regPassword').value;
+    const errorMsg = document.getElementById('regEmailError');
+    
+    const nameParts = name.split(' ');
+    const firstName = nameParts[0] || '';
+    const lastName = nameParts.slice(1).join(' ') || '';
+    const username = email.split('@')[0];
+    
+    errorMsg.classList.add('hidden');
+    
+    try {
+        const response = await apiRegister(
+            username,
+            firstName,
+            lastName,
+            email,
+            null,
+            password
+        );
+        
+        localStorage.setItem('user', JSON.stringify(response));
+        alert('Registration successful!');
+        window.location.href = 'login.html';
+        
+    } catch (error) {
         errorMsg.classList.remove('hidden');
-        return;
-      }
-      errorMsg.classList.add('hidden');
-
-      const newUser = { name, email, password, phone: "+94 77 123 4567" };
-      users.push(newUser);
-      localStorage.setItem('stellarX_users_list', JSON.stringify(users));
-      localStorage.setItem('stellarX_current_user', JSON.stringify(newUser));
-
-      alert('Registration successful!');
-      window.location.href = 'dashboard.html';
+        errorMsg.textContent = error.message || 'Registration failed!';
     }
+}
   </script>
 </body>
 </html>

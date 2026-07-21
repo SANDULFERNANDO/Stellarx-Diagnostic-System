@@ -6,6 +6,7 @@
   <title>StellarX - Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="api.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -220,19 +221,24 @@
   <!-- ================= CORE JAVASCRIPT ================= -->
   <script>
     window.onload = function() {
-      lucide.createIcons();
-      syncDashboardProfile();
-      loadRealtimeLocalStorageCases();
+    lucide.createIcons();
+    
+    if (!isAuthenticated()) {
+        redirectToLogin();
+        return;
     }
+    
+    syncDashboardProfile();
+    loadRealtimeLocalStorageCases();
+}
 
     function syncDashboardProfile() {
-      const activeUser = JSON.parse(localStorage.getItem('stellarX_current_user'));
-      
-      if (activeUser && activeUser.name) {
+    const user = getCurrentUser();
+    if (user) {
         const welcomeHeading = document.getElementById('dashWelcomeHeading');
-        welcomeHeading.innerHTML = `Welcome, <span id="dashWelcomeName" class="text-slate-900">${activeUser.name}</span>`;
-      }
+        welcomeHeading.innerHTML = `Welcome, <span id="dashWelcomeName" class="text-slate-900">${user.first_name || user.username}</span>`;
     }
+}
 
     function toggleNotificationPopup(open) {
       const modal = document.getElementById('notificationPopupModal');
@@ -250,53 +256,59 @@
       }
     }
 
-    function loadRealtimeLocalStorageCases() {
-      const localHistory = JSON.parse(localStorage.getItem('stellarX_diagnostic_history')) || [];
-      
-      if (localHistory.length > 0) {
-        const totalBase = 254 + localHistory.length;
-        document.getElementById('statTotalCases').innerText = totalBase;
-        document.getElementById('statRecentAnalyses').innerText = 15 + localHistory.length;
+    async function loadRealtimeLocalStorageCases() {
+    if (!isAuthenticated()) return;
+    
+    try {
+        const cases = await apiListCases();
         
-        if(localHistory[0].date) {
-          document.getElementById('statLastAnalysis').innerText = localHistory[0].date;
+        if (cases && cases.length > 0) {
+            document.getElementById('statTotalCases').innerText = cases.length;
+            document.getElementById('statRecentAnalyses').innerText = Math.min(cases.length, 15);
+            
+            if (cases[0] && cases[0].created_at) {
+                const date = new Date(cases[0].created_at);
+                document.getElementById('statLastAnalysis').innerText = date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            }
+            
+            let dynamicHtmlRows = "";
+            cases.slice(0, 5).forEach(item => {
+                const prediction = item.diagnosis_result || 'Pending';
+                const status = item.status || 'DRAFT';
+                const badgeColor = status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
+                                   'bg-amber-50 text-amber-700 border-amber-100';
+                const confidenceText = status === 'COMPLETED' ? 'Completed' : 'In Progress';
+                
+                dynamicHtmlRows += `
+                    <div class="bg-white rounded-xl border border-slate-200/60 p-4 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-colors cursor-pointer" onclick="window.location.href='result.html'">
+                        <div class="grid grid-cols-3 gap-4 md:gap-12 flex-1">
+                            <div>
+                                <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Case ID</span>
+                                <span class="text-xs font-black text-slate-800">${item.case_id || 'N/A'}</span>
+                            </div>
+                            <div>
+                                <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Date</span>
+                                <span class="text-xs font-semibold text-slate-500">${item.case_date || 'N/A'}</span>
+                            </div>
+                            <div>
+                                <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Top Prediction</span>
+                                <span class="text-xs font-black text-slate-800 block truncate">${prediction}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <span class="px-3 py-1 text-[10px] font-bold rounded-full ${badgeColor}">${confidenceText}</span>
+                            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors"></i>
+                        </div>
+                    </div>`;
+            });
+            
+            document.getElementById('casesActivityContainer').innerHTML = dynamicHtmlRows;
+            lucide.createIcons();
         }
-
-        let dynamicHtmlRows = "";
-        localHistory.forEach(item => {
-          const badgeColor = item.severity === 'Severe' ? 'bg-red-50 text-red-700 border-red-100' : 
-                             item.severity === 'Moderate' ? 'bg-amber-50 text-amber-700 border-amber-100' : 
-                             'bg-emerald-50 text-emerald-700 border-emerald-100';
-          
-          const confidenceText = item.severity === 'Severe' ? 'High Confidence' : 'Medium Confidence';
-
-          dynamicHtmlRows += `
-            <div class="bg-white rounded-xl border border-slate-200/60 p-4 shadow-sm flex items-center justify-between group hover:border-slate-300 transition-colors">
-              <div class="grid grid-cols-3 gap-4 md:gap-12 flex-1">
-                <div>
-                  <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Case ID</span>
-                  <span class="text-xs font-black text-slate-800">${item.caseId ? item.caseId.replace('CASE_', '') : '1025'}</span>
-                </div>
-                <div>
-                  <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Date</span>
-                  <span class="text-xs font-semibold text-slate-500">${item.date}</span>
-                </div>
-                <div>
-                  <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Top Prediction</span>
-                  <span class="text-xs font-black text-slate-800 block truncate">${item.prediction}</span>
-                </div>
-              </div>
-              <div class="flex items-center space-x-3">
-                <span class="px-3 py-1 text-[10px] font-bold rounded-full ${badgeColor}">${confidenceText}</span>
-                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-600 transition-colors"></i>
-              </div>
-            </div>`;
-        });
-
-        const container = document.getElementById('casesActivityContainer');
-        container.innerHTML = dynamicHtmlRows + container.innerHTML;
-      }
+    } catch (error) {
+        console.error('Failed to load cases:', error);
     }
+}
   </script>
 </body>
 </html>
