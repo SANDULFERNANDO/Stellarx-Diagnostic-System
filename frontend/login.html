@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StellarX - Sign In</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { colors: { stellarNavy: '#114a72', stellarDark: '#0f2d4a' } } }
+    }
+  </script>
+</head>
+<body class="bg-[#f4f7f9] min-h-screen flex items-center justify-center p-4 antialiased font-sans">
+
+  <div class="bg-white rounded-3xl shadow-xl max-w-5xl w-full grid grid-cols-1 md:grid-cols-12 overflow-hidden min-h-[600px]">
+    <!-- Left Banner -->
+    <div class="md:col-span-5 bg-[#114a72] p-10 flex flex-col justify-between text-white relative">
+      <div class="flex items-center space-x-2">
+        <i data-lucide="layers" class="w-6 h-6 text-white"></i>
+        <span class="text-xl font-bold tracking-wide">StellarX</span>
+      </div>
+      
+      <div class="my-auto space-y-4">
+        <h1 class="text-3xl font-black leading-tight">Precision AI<br>Skin Diagnostics.</h1>
+        <p class="text-sm text-slate-300 leading-relaxed">Empowering healthcare professionals with state-of-the-art diagnostic tools and secure, cloud-based patient analysis.</p>
+      </div>
+
+      <div class="flex items-center space-x-2 text-xs text-slate-300">
+        <i data-lucide="shield-check" class="w-5 h-5"></i>
+        <span>Secure access powered by <strong class="text-white">cloud authentication</strong></span>
+      </div>
+    </div>
+
+    <!-- Right Interaction Form -->
+    <div class="md:col-span-7 p-12 flex flex-col justify-center space-y-8">
+      <div>
+        <h2 class="text-3xl font-black text-slate-800 tracking-tight">Diagnostic System</h2>
+        <p class="text-xs text-slate-400 font-medium mt-1">AI-Assisted Clinical Skin Analysis for Healthcare Professionals</p>
+      </div>
+
+      <form id="loginForm" class="space-y-5" onsubmit="handleLogin(event)">
+        <!-- Email Input -->
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Email Address</label>
+          <div class="relative">
+            <i data-lucide="mail" class="w-4 h-4 text-slate-400 absolute left-3 top-3.5"></i>
+            <input type="text" id="emailInput" placeholder="name@hospital.com" 
+                   class="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-500 transition-colors">
+          </div>
+          <p id="emailError" class="text-xs text-red-500 hidden mt-1">Invalid email or password!</p>
+        </div>
+
+        <!-- Password Input -->
+        <div class="space-y-1">
+          <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Password</label>
+          <div class="relative">
+            <i data-lucide="lock" class="w-4 h-4 text-slate-400 absolute left-3 top-3.5"></i>
+            <input type="password" id="passwordInput" placeholder="Password" 
+                   class="w-full pl-10 pr-10 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-500 transition-colors">
+            <button type="button" onclick="togglePasswordVisibility()" class="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600">
+              <i id="passwordIcon" data-lucide="eye-off" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Remember / Forgot Block -->
+        <div class="flex items-center justify-between text-xs font-medium">
+          <label class="flex items-center space-x-2 cursor-pointer text-slate-600">
+            <input type="checkbox" class="rounded text-[#114a72] focus:ring-0 border-slate-300">
+            <span>Remember me</span>
+          </label>
+          <a href="#" class="text-[#114a72] hover:underline font-bold">Forgot password?</a>
+        </div>
+
+        <!-- Action Button -->
+        <button type="submit" class="w-full py-3.5 bg-[#114a72] hover:bg-[#0c3d5e] text-white text-sm font-bold rounded-xl transition-colors shadow-md active:scale-[0.99]">
+          Sign In
+        </button>
+      </form>
+
+      <!-- Fixed Register Link / Button -->
+      <div class="text-center text-xs text-slate-500 font-medium font-bold">
+  Don't have an account? 
+  <a href="reg.html" onclick="window.location.href='reg.html'; return false;" class="text-[#114a72] hover:underline cursor-pointer ml-1 inline-block">
+    Register
+  </a>
+</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    lucide.createIcons();
+
+    function togglePasswordVisibility() {
+      const input = document.getElementById('passwordInput');
+      const icon = document.getElementById('passwordIcon');
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.setAttribute('data-lucide', 'eye');
+      } else {
+        input.type = 'password';
+        icon.setAttribute('data-lucide', 'eye-off');
+      }
+      lucide.createIcons();
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      const email = document.getElementById('emailInput').value.trim().toLowerCase();
+      const password = document.getElementById('passwordInput').value;
+      const errorMsg = document.getElementById('emailError');
+
+      const users = JSON.parse(localStorage.getItem('stellarX_users_list')) || [];
+      const matchedUser = users.find(user => user.email === email && user.password === password);
+
+      if (!matchedUser) {
+        errorMsg.classList.remove('hidden');
+        document.getElementById('emailInput').classList.add('border-red-400');
+        return;
+      }
+
+      errorMsg.classList.add('hidden');
+      localStorage.setItem('stellarX_current_user', JSON.stringify(matchedUser));
+      window.location.href = 'dashboard.html';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StellarX - AI Analysis Results</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            stellarNavy: '#114a72',
+            stellarDark: '#0f2d4a',
+            bgGray: '#f4f7f9'
+          }
+        }
+      }
+    }
+  </script>
+</head>
+<body class="bg-[#f4f7f9] min-h-screen text-slate-800 font-sans antialiased relative pb-24">
+
+  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <nav class="bg-white border-b border-slate-100 px-6 md:px-16 py-4 flex items-center justify-between shadow-sm">
+    <div class="flex items-center space-x-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
+      <i data-lucide="layers" class="w-6 h-6 text-[#114a72]"></i>
+      <span class="text-xl font-black tracking-tight text-[#114a72]">StellarX</span>
+    </div>
+
+    <!-- [REMOVED STEPPER BASED ON USER REQUEST] -->
+
+    <div class="flex items-center">
+      <a href="dashboard.html" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-600 transition-colors" title="Back to Dashboard">
+        <i data-lucide="home" class="w-4 h-4"></i>
+      </a>
+    </div>
+  </nav>
+
+  <!-- ================= MAIN WORKSPACE CONTENT ================= -->
+  <main class="max-w-7xl mx-auto px-6 mt-10 space-y-6">
+    
+    <!-- Header Block -->
+    <div class="space-y-1">
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight">AI Analysis Results</h1>
+      <p class="text-sm text-slate-500 font-medium">Diagnostic probabilities generated based on the uploaded clinical image and symptom information.</p>
+    </div>
+
+    <!-- MAIN TWO-COLUMN RESPONSIVE LAYOUT -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      
+      <!-- LEFT COLUMN: PREDICTED CONDITIONS CARD (7 COLS) -->
+      <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 lg:col-span-7 space-y-6">
+        <div>
+          <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-wider">Predicted Conditions</h3>
+        </div>
+
+        <!-- Prediction Stack -->
+        <div class="space-y-4">
+          <!-- Condition 1: High -->
+          <div class="bg-[#f0f7ff] border border-blue-100/70 rounded-xl p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4 flex-1">
+              <span class="text-2xl font-black text-blue-600/40">1</span>
+              <div class="flex-1 max-w-xs">
+                <span class="block text-sm font-black text-slate-900 tracking-tight">Tinea Infection</span>
+                <div class="w-full bg-blue-100 rounded-full h-2 mt-1 relative">
+                  <div class="bg-blue-600 h-2 rounded-full" style="width: 78%"></div>
+                </div>
+                <span class="text-[10px] font-bold text-blue-600 mt-1 block">78% Match</span>
+              </div>
+            </div>
+            <span class="px-3 py-1 text-[10px] font-black bg-emerald-100 text-emerald-800 rounded-lg">High</span>
+          </div>
+
+          <!-- Condition 2: Medium -->
+          <div class="border border-slate-100 rounded-xl p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4 flex-1">
+              <span class="text-xl font-black text-slate-300">2</span>
+              <div class="flex-1 max-w-xs">
+                <span class="block text-xs font-bold text-slate-800">Psoriasis</span>
+                <div class="w-full bg-slate-100 rounded-full h-1.5 mt-1">
+                  <div class="bg-slate-400 h-1.5 rounded-full" style="width: 15%"></div>
+                </div>
+                <span class="text-[9px] font-bold text-slate-400 mt-0.5 block">15%</span>
+              </div>
+            </div>
+            <span class="px-3 py-1 text-[10px] font-black bg-amber-100 text-amber-800 rounded-lg">Medium</span>
+          </div>
+
+          <!-- Condition 3: Low -->
+          <div class="border border-slate-100 rounded-xl p-4 flex items-center justify-between">
+            <div class="flex items-center space-x-4 flex-1">
+              <span class="text-xl font-black text-slate-300">3</span>
+              <div class="flex-1 max-w-xs">
+                <span class="block text-xs font-bold text-slate-800">Eczema</span>
+                <div class="w-full bg-slate-100 rounded-full h-1.5 mt-1">
+                  <div class="bg-slate-300 h-1.5 rounded-full" style="width: 7%"></div>
+                </div>
+                <span class="text-[9px] font-bold text-slate-400 mt-0.5 block">7%</span>
+              </div>
+            </div>
+            <span class="px-3 py-1 text-[10px] font-black bg-slate-100 text-slate-500 rounded-lg">Low</span>
+          </div>
+        </div>
+
+        <!-- Confidence Legend Footer Section -->
+        <div class="pt-4 border-t border-slate-100 space-y-2">
+          <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Confidence Legend</span>
+          <div class="flex items-center space-x-6 text-[11px] font-bold text-slate-600">
+            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> High: &gt; 70%</div>
+            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Medium: 40% - 70%</div>
+            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Low: &lt; 40%</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT COLUMN: INPUT SUMMARY (5 COLS) -->
+      <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 lg:col-span-5 space-y-6">
+        <div>
+          <h2 class="text-base font-black text-slate-900 tracking-tight">Input Summary</h2>
+        </div>
+
+        <!-- 1. Uploaded Clinical Image Zone -->
+        <div class="space-y-2">
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">1. Uploaded Clinical Image</span>
+          <div class="border border-slate-200 rounded-xl bg-slate-50/50 p-2 min-h-[220px] flex items-center justify-center relative overflow-hidden">
+            <!-- Dynamic Image Container -->
+            <img id="resultImageContainer" src="" alt="Uploaded Clinical Lesion" class="hidden max-h-[200px] max-w-full w-auto object-contain rounded-lg shadow-sm">
+            
+            <!-- Fallback Static Placeholder Label -->
+            <div id="resultImagePlaceholder" class="text-xs font-bold text-slate-400 tracking-wide block">
+              Clinical Image Placeholder
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. Selected Symptoms Tag Cloud -->
+        <div class="space-y-2">
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">2. Selected Symptoms</span>
+          <div class="flex flex-wrap gap-2 pt-1">
+            <span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">Redness</span>
+            <span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">Scaling</span>
+            <span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">Itching</span>
+            <span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">Circular lesion pattern</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ================= BOTTOM NAVIGATIONAL ACTIONS BUTTON ROW ================= -->
+    <div class="flex items-center justify-end gap-3 pt-6">
+      <button onclick="window.location.href='history.html'" class="px-6 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-sm">
+        View History
+      </button>
+      <button onclick="clearAndNavigateToSymptoms()" class="px-6 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-[#114a72] text-xs font-bold rounded-xl transition-all shadow-sm">
+        New Case
+      </button>
+      <button onclick="window.location.href='dashboard.html'" class="px-6 py-2.5 bg-[#114a72] hover:bg-[#0c3d5e] text-white text-xs font-bold rounded-xl transition-all shadow-sm">
+        Save Case
+      </button>
+    </div>
+
+  </main>
+
+  <!-- ================= DYNAMIC RUNTIME JAVASCRIPT ================= -->
+  <script>
+    window.onload = function() {
+      lucide.createIcons();
+      loadTransferredClinicalSession();
+    }
+
+  
+    function loadTransferredClinicalSession() {
+      const imageElement = document.getElementById('resultImageContainer');
+      const placeholderElement = document.getElementById('resultImagePlaceholder');
+
+
+      const savedImageData = localStorage.getItem('stellarX_temp_uploaded_image');
+      
+      if (savedImageData) {
+
+        imageElement.src = savedImageData;
+        imageElement.classList.remove('hidden'); 
+        placeholderElement.classList.add('hidden'); 
+      } else {
+
+        imageElement.classList.add('hidden');
+        placeholderElement.classList.remove('hidden');
+      }
+    }
+
+    function clearAndNavigateToSymptoms() {
+      localStorage.removeItem('stellarX_temp_uploaded_image');
+      window.location.href = 'symptoms.html';
+    }
+  </script>
+</body>
+</html>
