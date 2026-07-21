@@ -1,7 +1,7 @@
-from sqlalchemy import Column, Integer, String, Boolean, DateTime
+from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date
 from sqlalchemy.sql import func
-from app.database import Base
-
+from .database import Base
+import uuid
 
 class HealthcareWorker(Base):
     __tablename__ = "healthcare_workers"
@@ -19,23 +19,19 @@ class HealthcareWorker(Base):
     created_at      = Column(DateTime, server_default=func.now())
     updated_at      = Column(DateTime, server_default=func.now(), onupdate=func.now())
 
-
 class Session(Base):
     __tablename__ = "sessions"
-
     session_id  = Column(String(36), primary_key=True)
     user_id     = Column(Integer, nullable=False)
     token       = Column(String(500), nullable=False)
     expires_at  = Column(DateTime, nullable=False)
     created_at  = Column(DateTime, server_default=func.now())
 
-
 class PatientCase(Base):
     __tablename__ = "patient_cases"
-    
     id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
     case_id = Column(String(20), unique=True, index=True, nullable=False)
-    worker_id = Column(Integer, nullable=False, index=True)  # FK to HealthcareWorker
+    worker_id = Column(Integer, nullable=False, index=True)
     case_date = Column(Date, nullable=False)
     patient_age = Column(Integer, nullable=True)
     patient_gender = Column(String(10), nullable=True)
