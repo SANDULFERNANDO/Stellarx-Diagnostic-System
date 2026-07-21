@@ -6,6 +6,7 @@
   <title>StellarX - Case History</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="api.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -77,102 +78,69 @@
       loadAllCaseHistory();
     }
 
-    // පැරණි කේස් එකක් ක්ලික් කළ විට result.html වෙත රැගෙන යාම
+    
     function viewCaseDetails() {
       window.location.href = 'result.html';
     }
 
-    function loadAllCaseHistory() {
-      const localHistory = JSON.parse(localStorage.getItem('stellarX_diagnostic_history')) || [];
-      const container = document.getElementById('fullHistoryContainer');
-      const countBadge = document.getElementById('historyTotalCount');
-      
-      countBadge.innerText = `Total: ${254 + localHistory.length} Cases`;
-
-      let dynamicHtml = "";
-
-      // 1. LocalStorage එකෙන් එන Live Data (click triggers එකතු කර ඇත)
-      if (localHistory.length > 0) {
-        document.getElementById('noHistoryText').classList.add('hidden');
-        
-        localHistory.forEach(item => {
-          const badgeColor = item.severity === 'Severe' ? 'bg-red-50 text-red-700 border-red-100' : 
-                             item.severity === 'Moderate' ? 'bg-amber-50 text-amber-700 border-amber-100' : 
-                             'bg-emerald-50 text-emerald-700 border-emerald-100';
-          
-          const confidenceText = item.severity === 'Severe' ? 'High Confidence' : 'Medium Confidence';
-
-          dynamicHtml += `
-            <div onclick="viewCaseDetails()" class="bg-white rounded-xl border border-slate-200/60 p-4 shadow-sm flex items-center justify-between group hover:border-slate-300 hover:shadow-md cursor-pointer transition-all">
-              <div class="grid grid-cols-3 gap-4 md:gap-12 flex-1">
-                <div>
-                  <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Case ID</span>
-                  <span class="text-xs font-black text-slate-800">${item.caseId ? item.caseId.replace('CASE_', '') : '1025'}</span>
-                </div>
-                <div>
-                  <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Date</span>
-                  <span class="text-xs font-semibold text-slate-500">${item.date}</span>
-                </div>
-                <div>
-                  <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Top Prediction</span>
-                  <span class="text-xs font-black text-slate-800 block truncate">${item.prediction}</span>
-                </div>
-              </div>
-              <div class="flex items-center space-x-3">
-                <span class="px-3 py-1 text-[10px] font-bold rounded-full ${badgeColor}">${confidenceText}</span>
-                <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all"></i>
-              </div>
-            </div>`;
-        });
-      }
-
-      // 2. Baseline Mock Data (click triggers එකතු කර ඇත)
-      dynamicHtml += `
-        <div onclick="viewCaseDetails()" class="bg-white rounded-xl border border-slate-200/60 p-4 shadow-sm flex items-center justify-between group hover:border-slate-300 hover:shadow-md cursor-pointer transition-all">
-          <div class="grid grid-cols-3 gap-4 md:gap-12 flex-1">
-            <div>
-              <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Case ID</span>
-              <span class="text-xs font-black text-slate-800">1024</span>
-            </div>
-            <div>
-              <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Date</span>
-              <span class="text-xs font-semibold text-slate-500">May 15</span>
-            </div>
-            <div>
-              <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Top Prediction</span>
-              <span class="text-xs font-black text-slate-800 block truncate">Tinea Infection</span>
-            </div>
-          </div>
-          <div class="flex items-center space-x-3">
-            <span class="px-3 py-1 text-[10px] font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-100">High Confidence</span>
-            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all"></i>
-          </div>
-        </div>
-
-        <div onclick="viewCaseDetails()" class="bg-white rounded-xl border border-slate-200/60 p-4 shadow-sm flex items-center justify-between group hover:border-slate-300 hover:shadow-md cursor-pointer transition-all">
-          <div class="grid grid-cols-3 gap-4 md:gap-12 flex-1">
-            <div>
-              <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Case ID</span>
-              <span class="text-xs font-black text-slate-800">1023</span>
-            </div>
-            <div>
-              <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Date</span>
-              <span class="text-xs font-semibold text-slate-500">May 14</span>
-            </div>
-            <div>
-              <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Top Prediction</span>
-              <span class="text-xs font-black text-slate-800 block truncate">Psoriasis</span>
-            </div>
-          </div>
-          <div class="flex items-center space-x-3">
-            <span class="px-3 py-1 text-[10px] font-bold rounded-full bg-amber-50 text-amber-700 border border-amber-100">Medium Confidence</span>
-            <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all"></i>
-          </div>
-        </div>
-      `;
-
-      container.innerHTML = dynamicHtml;
+    async function loadAllCaseHistory() {
+    const container = document.getElementById('fullHistoryContainer');
+    const countBadge = document.getElementById('historyTotalCount');
+    
+    if (!isAuthenticated()) {
+        container.innerHTML = `<p class="text-xs font-medium text-slate-400 py-8 text-center">Please login to view cases.</p>`;
+        countBadge.innerText = 'Not authenticated';
+        return;
     }
+    
+    try {
+        const cases = await apiListCases();
+        countBadge.innerText = `Total: ${cases.length} Cases`;
+        
+        if (cases.length === 0) {
+            container.innerHTML = `<p class="text-xs font-medium text-slate-400 py-8 text-center">No cases found.</p>`;
+            return;
+        }
+        
+        let dynamicHtml = "";
+        cases.forEach(item => {
+            const prediction = item.diagnosis_result || 'Pending';
+            const status = item.status || 'DRAFT';
+            const badgeColor = status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
+                               'bg-amber-50 text-amber-700 border-amber-100';
+            const confidenceText = status === 'COMPLETED' ? 'Completed' : 'In Progress';
+            
+            dynamicHtml += `
+                <div onclick="viewCaseDetails('${item.case_id}')" class="bg-white rounded-xl border border-slate-200/60 p-4 shadow-sm flex items-center justify-between group hover:border-slate-300 hover:shadow-md cursor-pointer transition-all">
+                    <div class="grid grid-cols-3 gap-4 md:gap-12 flex-1">
+                        <div>
+                            <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Case ID</span>
+                            <span class="text-xs font-black text-slate-800">${item.case_id || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Date</span>
+                            <span class="text-xs font-semibold text-slate-500">${item.case_date || 'N/A'}</span>
+                        </div>
+                        <div>
+                            <span class="block text-[9px] font-bold text-slate-400 uppercase tracking-wider">Top Prediction</span>
+                            <span class="text-xs font-black text-slate-800 block truncate">${prediction}</span>
+                        </div>
+                    </div>
+                    <div class="flex items-center space-x-3">
+                        <span class="px-3 py-1 text-[10px] font-bold rounded-full ${badgeColor}">${confidenceText}</span>
+                        <i data-lucide="chevron-right" class="w-4 h-4 text-slate-400 group-hover:text-slate-600 group-hover:translate-x-0.5 transition-all"></i>
+                    </div>
+                </div>`;
+        });
+        
+        container.innerHTML = dynamicHtml;
+        lucide.createIcons();
+        
+    } catch (error) {
+        container.innerHTML = `<p class="text-xs font-medium text-red-500 py-8 text-center">Error: ${error.message}</p>`;
+        countBadge.innerText = 'Error';
+    }
+}
   </script>
 </body>
 </html>

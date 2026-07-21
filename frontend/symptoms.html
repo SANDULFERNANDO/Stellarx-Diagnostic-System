@@ -6,6 +6,7 @@
   <title>StellarX - Enter Observed Symptoms</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="api.js"></script>
   <script>
     tailwind.config = {
       theme: {
@@ -214,36 +215,71 @@
       }
     }
 
-    function handleAnalysisSubmission() {
-      const currentLogs = JSON.parse(localStorage.getItem('stellarX_diagnostic_history')) || [];
-      
-      let calculatedPrediction = "Tinea Infection"; 
-      let calculatedSeverity = "Severe";
-
-      if(document.getElementById('sympRing').checked) {
-        calculatedPrediction = "Tinea Infection";
-        calculatedSeverity = "Severe";
-      } else if (document.getElementById('sympScaling').checked) {
-        calculatedPrediction = "Psoriasis";
-        calculatedSeverity = "Moderate";
-      } else if (document.getElementById('sympItching').checked) {
-        calculatedPrediction = "Eczema";
-        calculatedSeverity = "Mild";
-      }
-
-      const newlyGeneratedCase = {
-        caseId: `CASE_${1025 + currentLogs.length}`,
-        date: "Jul 19",
-        prediction: calculatedPrediction,
-        severity: calculatedSeverity
-      };
-
-      currentLogs.unshift(newlyGeneratedCase);
-      localStorage.setItem('stellarX_diagnostic_history', JSON.stringify(currentLogs));
-      
-
-      window.location.href = 'result.html';
+    async function handleAnalysisSubmission() {
+    try {
+        // Get symptoms
+        const symptoms = {
+            redness: document.getElementById('sympRedness').checked,
+            scaling: document.getElementById('sympScaling').checked,
+            ring: document.getElementById('sympRing').checked,
+            itching: document.getElementById('sympItching').checked,
+            pain: document.getElementById('sympPain').checked,
+            lesionSize: document.querySelector('input[name="lesionSize"]:checked')?.value || '',
+            lesionShape: document.querySelector('input[name="lesionShape"]:checked')?.value || '',
+            lesionLocation: document.getElementById('lesionLocation').value,
+            notes: document.getElementById('clinicalNotes').value
+        };
+        
+        // Create case
+        const caseData = {
+            patient_age: 35,
+            patient_gender: 'male',
+            patient_location: symptoms.lesionLocation || 'Unknown'
+        };
+        
+        const newCase = await apiCreateCase(
+            caseData.patient_age,
+            caseData.patient_gender,
+            caseData.patient_location
+        );
+        
+        const caseId = newCase.case_id;
+        localStorage.setItem('current_case_id', caseId);
+        localStorage.setItem('current_symptoms', JSON.stringify(symptoms));
+        
+        // History
+        const currentLogs = JSON.parse(localStorage.getItem('stellarX_diagnostic_history')) || [];
+        
+        let calculatedPrediction = "Tinea Infection";
+        let calculatedSeverity = "Severe";
+        
+        if (document.getElementById('sympRing').checked) {
+            calculatedPrediction = "Tinea Infection";
+            calculatedSeverity = "Severe";
+        } else if (document.getElementById('sympScaling').checked) {
+            calculatedPrediction = "Psoriasis";
+            calculatedSeverity = "Moderate";
+        } else if (document.getElementById('sympItching').checked) {
+            calculatedPrediction = "Eczema";
+            calculatedSeverity = "Mild";
+        }
+        
+        const newlyGeneratedCase = {
+            caseId: caseId,
+            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+            prediction: calculatedPrediction,
+            severity: calculatedSeverity
+        };
+        
+        currentLogs.unshift(newlyGeneratedCase);
+        localStorage.setItem('stellarX_diagnostic_history', JSON.stringify(currentLogs));
+        
+        window.location.href = 'result.html';
+        
+    } catch (error) {
+        alert('Error submitting analysis: ' + error.message);
     }
+}
   </script>
 </body>
 </html>

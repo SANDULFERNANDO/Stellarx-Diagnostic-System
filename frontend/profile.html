@@ -6,6 +6,7 @@
   <title>StellarX - Profile Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="api.js"></script>
   <script>
     tailwind.config = {
       theme: { extend: { colors: { stellarNavy: '#114a72', stellarDark: '#0f2d4a' } } }
@@ -216,9 +217,8 @@
     }
 
     function logout() {
-      localStorage.removeItem('stellarX_current_user');
-      window.location.href = 'login.html';
-    }
+    apiLogout();
+}
   </script>
 </body>
 </html>
