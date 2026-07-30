@@ -23,15 +23,12 @@
 </head>
 <body class="bg-[#f4f7f9] min-h-screen text-slate-800 font-sans antialiased relative pb-24">
 
-  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <!-- Navigation -->
   <nav class="bg-white border-b border-slate-100 px-6 md:px-16 py-4 flex items-center justify-between shadow-sm">
     <div class="flex items-center space-x-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
       <i data-lucide="layers" class="w-6 h-6 text-[#114a72]"></i>
       <span class="text-xl font-black tracking-tight text-[#114a72]">StellarX</span>
     </div>
-
-    <!-- [REMOVED STEPPER BASED ON USER REQUEST] -->
-
     <div class="flex items-center">
       <a href="dashboard.html" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-600 transition-colors" title="Back to Dashboard">
         <i data-lucide="home" class="w-4 h-4"></i>
@@ -39,27 +36,23 @@
     </div>
   </nav>
 
-  <!-- ================= MAIN WORKSPACE CONTENT ================= -->
+  <!-- Main Content -->
   <main class="max-w-7xl mx-auto px-6 mt-10 space-y-6">
     
-    <!-- Header Block -->
     <div class="space-y-1">
       <h1 class="text-3xl font-black text-slate-900 tracking-tight">AI Analysis Results</h1>
       <p class="text-sm text-slate-500 font-medium">Diagnostic probabilities generated based on the uploaded clinical image and symptom information.</p>
     </div>
 
-    <!-- MAIN TWO-COLUMN RESPONSIVE LAYOUT -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
       
-      <!-- LEFT COLUMN: PREDICTED CONDITIONS CARD (7 COLS) -->
+      <!-- LEFT COLUMN: PREDICTED CONDITIONS -->
       <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 lg:col-span-7 space-y-6">
         <div>
           <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-wider">Predicted Conditions</h3>
         </div>
 
-        <!-- Prediction Stack -->
         <div class="space-y-4">
-          <!-- Condition 1: High -->
           <div class="bg-[#f0f7ff] border border-blue-100/70 rounded-xl p-4 flex items-center justify-between">
             <div class="flex items-center space-x-4 flex-1">
               <span class="text-2xl font-black text-blue-600/40">1</span>
@@ -74,7 +67,6 @@
             <span class="px-3 py-1 text-[10px] font-black bg-emerald-100 text-emerald-800 rounded-lg">High</span>
           </div>
 
-          <!-- Condition 2: Medium -->
           <div class="border border-slate-100 rounded-xl p-4 flex items-center justify-between">
             <div class="flex items-center space-x-4 flex-1">
               <span class="text-xl font-black text-slate-300">2</span>
@@ -89,7 +81,6 @@
             <span class="px-3 py-1 text-[10px] font-black bg-amber-100 text-amber-800 rounded-lg">Medium</span>
           </div>
 
-          <!-- Condition 3: Low -->
           <div class="border border-slate-100 rounded-xl p-4 flex items-center justify-between">
             <div class="flex items-center space-x-4 flex-1">
               <span class="text-xl font-black text-slate-300">3</span>
@@ -105,7 +96,6 @@
           </div>
         </div>
 
-        <!-- Confidence Legend Footer Section -->
         <div class="pt-4 border-t border-slate-100 space-y-2">
           <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Confidence Legend</span>
           <div class="flex items-center space-x-6 text-[11px] font-bold text-slate-600">
@@ -116,41 +106,39 @@
         </div>
       </div>
 
-      <!-- RIGHT COLUMN: INPUT SUMMARY (5 COLS) -->
+      <!-- RIGHT COLUMN: INPUT SUMMARY -->
       <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 lg:col-span-5 space-y-6">
         <div>
           <h2 class="text-base font-black text-slate-900 tracking-tight">Input Summary</h2>
         </div>
 
-        <!-- 1. Uploaded Clinical Image Zone -->
+        <!-- 1. Uploaded Clinical Image Gallery -->
         <div class="space-y-2">
-          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">1. Uploaded Clinical Image</span>
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">1. Uploaded Clinical Images</span>
           <div class="border border-slate-200 rounded-xl bg-slate-50/50 p-2 min-h-[220px] flex items-center justify-center relative overflow-hidden">
-            <!-- Dynamic Image Container -->
-            <img id="resultImageContainer" src="" alt="Uploaded Clinical Lesion" class="hidden max-h-[200px] max-w-full w-auto object-contain rounded-lg shadow-sm">
-            
-            <!-- Fallback Static Placeholder Label -->
+            <!-- Image Gallery Container -->
+            <div id="imageGalleryContainer" class="grid grid-cols-2 md:grid-cols-3 gap-2 w-full hidden">
+              <!-- Images will be dynamically inserted here -->
+            </div>
+            <!-- Placeholder -->
             <div id="resultImagePlaceholder" class="text-xs font-bold text-slate-400 tracking-wide block">
-              Clinical Image Placeholder
+              No images uploaded
             </div>
           </div>
         </div>
 
-        <!-- 2. Selected Symptoms Tag Cloud -->
+        <!-- 2. Selected Symptoms -->
         <div class="space-y-2">
           <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">2. Selected Symptoms</span>
-          <div class="flex flex-wrap gap-2 pt-1">
-            <span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">Redness</span>
-            <span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">Scaling</span>
-            <span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">Itching</span>
-            <span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">Circular lesion pattern</span>
+          <div id="symptomBadgeCloud" class="flex flex-wrap gap-2 pt-1">
+            <span class="text-xs text-slate-400">No symptoms recorded</span>
           </div>
         </div>
       </div>
 
     </div>
 
-    <!-- ================= BOTTOM NAVIGATIONAL ACTIONS BUTTON ROW ================= -->
+    <!-- Bottom Actions -->
     <div class="flex items-center justify-end gap-3 pt-6">
       <button onclick="window.location.href='history.html'" class="px-6 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-sm">
         View History
@@ -165,36 +153,126 @@
 
   </main>
 
-  <!-- ================= DYNAMIC RUNTIME JAVASCRIPT ================= -->
+  <!-- JavaScript -->
   <script>
-    window.onload = function() {
-      lucide.createIcons();
-      loadTransferredClinicalSession();
+    window.onload = async function() {
+        lucide.createIcons();
+        await loadAllImagesFromBackend();
+        loadSymptomsFromLocalStorage();
     }
 
-  
-    function loadTransferredClinicalSession() {
-      const imageElement = document.getElementById('resultImageContainer');
-      const placeholderElement = document.getElementById('resultImagePlaceholder');
+    async function loadAllImagesFromBackend() {
+        const caseId = localStorage.getItem('current_case_id');
+        const placeholder = document.getElementById('resultImagePlaceholder');
+        const gallery = document.getElementById('imageGalleryContainer');
+        
+        gallery.innerHTML = '';
+        gallery.classList.add('hidden');
+        
+        if (!caseId) {
+            tryLoadFromLocalStorage();
+            return;
+        }
+        
+        try {
+            const response = await apiGetCaseImages(caseId);
+            const images = response.images || [];
+            
+            if (images.length === 0) {
+                tryLoadFromLocalStorage();
+                return;
+            }
+            
+            placeholder.classList.add('hidden');
+            gallery.classList.remove('hidden');
+            
+            images.forEach((img, index) => {
+                const imageUrl = `http://127.0.0.1:8080/uploads/${caseId}/${img.s3_key.split('/').pop()}`;
+                
+                const imgElement = document.createElement('img');
+                imgElement.src = imageUrl;
+                imgElement.alt = `Image ${index + 1}`;
+                imgElement.className = 'w-full h-32 object-cover rounded-lg border border-slate-200 shadow-sm';
+                imgElement.onerror = function() {
+                    this.style.display = 'none';
+                    const fallback = document.createElement('div');
+                    fallback.className = 'w-full h-32 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-xs font-bold';
+                    fallback.innerText = `Image ${index + 1}`;
+                    this.parentNode.replaceChild(fallback, this);
+                };
+                
+                gallery.appendChild(imgElement);
+            });
+            
+            if (images.length > 3) {
+                const badge = document.createElement('div');
+                badge.className = 'col-span-full text-center text-xs font-bold text-slate-500 bg-slate-100 py-1 rounded-lg';
+                badge.innerText = `+ ${images.length - 3} more images`;
+                gallery.appendChild(badge);
+            }
+            
+        } catch (error) {
+            console.error('Failed to load images from backend:', error);
+            tryLoadFromLocalStorage();
+        }
+    }
 
+    function tryLoadFromLocalStorage() {
+        const placeholder = document.getElementById('resultImagePlaceholder');
+        const gallery = document.getElementById('imageGalleryContainer');
+        
+        const savedImages = JSON.parse(localStorage.getItem('stellarX_uploaded_images') || '[]');
+        
+        if (savedImages.length > 0) {
+            placeholder.classList.add('hidden');
+            gallery.classList.remove('hidden');
+            gallery.innerHTML = '';
+            savedImages.forEach((img, index) => {
+                const imgElement = document.createElement('img');
+                imgElement.src = img.data;
+                imgElement.alt = `Image ${index + 1}`;
+                imgElement.className = 'w-full h-32 object-cover rounded-lg border border-slate-200 shadow-sm';
+                gallery.appendChild(imgElement);
+            });
+        } else {
+            placeholder.classList.remove('hidden');
+            gallery.classList.add('hidden');
+        }
+    }
 
-      const savedImageData = localStorage.getItem('stellarX_temp_uploaded_image');
-      
-      if (savedImageData) {
-
-        imageElement.src = savedImageData;
-        imageElement.classList.remove('hidden'); 
-        placeholderElement.classList.add('hidden'); 
-      } else {
-
-        imageElement.classList.add('hidden');
-        placeholderElement.classList.remove('hidden');
-      }
+    function loadSymptomsFromLocalStorage() {
+        const symptomsData = localStorage.getItem('current_symptoms');
+        if (!symptomsData) return;
+        
+        try {
+            const symptoms = JSON.parse(symptomsData);
+            const badgeCloud = document.getElementById('symptomBadgeCloud');
+            if (badgeCloud) {
+                const symptomList = [];
+                if (symptoms.redness) symptomList.push('Redness');
+                if (symptoms.scaling) symptomList.push('Scaling');
+                if (symptoms.ring) symptomList.push('Ring-shaped lesion');
+                if (symptoms.itching) symptomList.push('Itching');
+                if (symptoms.pain) symptomList.push('Pain / Tenderness');
+                if (symptoms.lesionLocations && symptoms.lesionLocations.length > 0) {
+                    symptomList.push(...symptoms.lesionLocations);
+                }
+                
+                badgeCloud.innerHTML = symptomList.length > 0 
+                    ? symptomList.map(s => 
+                        `<span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">${s}</span>`
+                      ).join('')
+                    : '<span class="text-xs text-slate-400">No symptoms recorded</span>';
+            }
+        } catch (e) {
+            console.error('Failed to load symptoms:', e);
+        }
     }
 
     function clearAndNavigateToSymptoms() {
-      localStorage.removeItem('stellarX_temp_uploaded_image');
-      window.location.href = 'symptoms.html';
+        localStorage.removeItem('stellarX_temp_uploaded_image');
+        localStorage.removeItem('stellarX_uploaded_images');
+        window.location.href = 'symptoms.html';
     }
   </script>
 </body>

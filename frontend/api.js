@@ -116,6 +116,30 @@ async function apiDeleteCase(caseId) {
     return apiRequest(`/cases/${caseId}`, 'DELETE', null, true);
 }
 
+async function apiGetCaseImages(caseId) {
+    return apiRequest(`/cases/${caseId}/images`, 'GET', null, true);
+}
+
+
+// =====================================================
+// SYMPTOM APIS (ADD THIS)
+// =====================================================
+
+async function apiSaveSymptoms(caseId, symptomData) {
+    return apiRequest(`/cases/${caseId}/symptoms`, 'POST', symptomData, true);
+}
+
+async function apiGetSymptoms(caseId) {
+    return apiRequest(`/cases/${caseId}/symptoms`, 'GET', null, true);
+}
+
+async function apiUpdateSymptoms(caseId, symptomData) {
+    return apiRequest(`/cases/${caseId}/symptoms`, 'PUT', symptomData, true);
+}
+
+async function apiDeleteSymptoms(caseId) {
+    return apiRequest(`/cases/${caseId}/symptoms`, 'DELETE', null, true);
+}
 // =====================================================
 // HELPER FUNCTIONS
 // =====================================================
@@ -141,3 +165,4 @@ function redirectToLogin() {
 function redirectToDashboard() {
     window.location.href = 'dashboard.html';
 }
+
