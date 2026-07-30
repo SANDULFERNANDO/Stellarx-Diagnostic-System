@@ -6,7 +6,7 @@
   <title>StellarX - Profile Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="api.js"></script>
+  <script src="api.js"></script>  <!-- ✅ ADD THIS -->
   <script>
     tailwind.config = {
       theme: { extend: { colors: { stellarNavy: '#114a72', stellarDark: '#0f2d4a' } } }
@@ -71,35 +71,30 @@
 
       <!-- Detail Input Fields Grid Form -->
       <form id="profileForm" onsubmit="saveProfileChanges(event)" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Name Field -->
         <div class="space-y-1">
           <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Full Name</label>
           <input type="text" id="profileName" disabled required
                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-sky-500 disabled:opacity-75 transition-colors">
         </div>
 
-        <!-- Position Field -->
         <div class="space-y-1">
           <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Position / Title</label>
           <input type="text" id="profilePosition" disabled required placeholder="e.g. Dermatologist / Medical Student"
                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-sky-500 disabled:opacity-75 transition-colors">
         </div>
 
-        <!-- Email Field -->
         <div class="space-y-1">
           <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Email Address</label>
           <input type="email" id="profileEmail" disabled required
                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-sky-500 disabled:opacity-75 transition-colors">
         </div>
 
-        <!-- Phone Field -->
         <div class="space-y-1">
           <label class="text-xs font-bold text-slate-700 uppercase tracking-wider">Contact Number</label>
           <input type="text" id="profilePhone" disabled required
                  class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm text-slate-800 focus:outline-none focus:border-sky-500 disabled:opacity-75 transition-colors">
         </div>
 
-        <!-- Save Action Footer Block (Hidden until edit mode activated) -->
         <div id="saveActionsBlock" class="md:col-span-2 hidden flex justify-end space-x-3 pt-4 border-t border-slate-100">
           <button type="button" onclick="cancelEditMode()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-xl transition-colors">
             Cancel
@@ -117,32 +112,36 @@
     let isEditMode = false;
     let currentUser = null;
 
-    // Load user data on startup
+    // ✅ UPDATED: Check authentication first
     window.onload = function() {
-      lucide.createIcons();
-      loadUserProfile();
+        lucide.createIcons();
+        
+        // ✅ Redirect to login if not authenticated
+        if (!isAuthenticated()) {
+            redirectToLogin();
+            return;
+        }
+        
+        loadUserProfile();
     }
 
     function loadUserProfile() {
-      currentUser = JSON.parse(localStorage.getItem('stellarX_current_user'));
+      currentUser = getCurrentUser();
       
       if (!currentUser) {
         window.location.href = 'login.html';
         return;
       }
 
-      // If position or phone don't exist yet, give default values
       if (!currentUser.position) currentUser.position = "Healthcare Practitioner";
       if (!currentUser.phone) currentUser.phone = "+94 77 123 4567";
 
-      // Set visible inputs
-      document.getElementById('profileName').value = currentUser.name;
+      document.getElementById('profileName').value = currentUser.name || currentUser.first_name || '';
       document.getElementById('profilePosition').value = currentUser.position;
       document.getElementById('profileEmail').value = currentUser.email;
       document.getElementById('profilePhone').value = currentUser.phone;
 
-      // Update header visualization texts
-      document.getElementById('displayHeaderName').innerText = currentUser.name;
+      document.getElementById('displayHeaderName').innerText = currentUser.name || currentUser.first_name || 'Medical Professional';
       document.getElementById('displayHeaderPosition').innerText = currentUser.position;
     }
 
@@ -155,7 +154,6 @@
       isEditMode = true;
       document.getElementById('btnText').innerText = "Viewing Mode";
       
-      // Enable all functional inputs
       const fields = ['profileName', 'profilePosition', 'profileEmail', 'profilePhone'];
       fields.forEach(id => {
         const el = document.getElementById(id);
@@ -171,7 +169,6 @@
       isEditMode = false;
       document.getElementById('btnText').innerText = "Edit Profile";
       
-      // Re-disable fields
       const fields = ['profileName', 'profilePosition', 'profileEmail', 'profilePhone'];
       fields.forEach(id => {
         const el = document.getElementById(id);
@@ -181,7 +178,7 @@
       });
 
       document.getElementById('saveActionsBlock').classList.add('hidden');
-      loadUserProfile(); // Revert back to original values
+      loadUserProfile();
     }
 
     function saveProfileChanges(e) {
@@ -192,14 +189,12 @@
       const newEmail = document.getElementById('profileEmail').value.trim().toLowerCase();
       const newPhone = document.getElementById('profilePhone').value.trim();
 
-      // Update current runtime object
       const oldEmail = currentUser.email;
       currentUser.name = newName;
       currentUser.position = newPosition;
       currentUser.email = newEmail;
       currentUser.phone = newPhone;
 
-      // Update inside the global localstorage registration index list too
       let usersList = JSON.parse(localStorage.getItem('stellarX_users_list')) || [];
       usersList = usersList.map(user => {
         if(user.email === oldEmail) {
@@ -216,9 +211,10 @@
       loadUserProfile();
     }
 
+    // ✅ UPDATED: Use apiLogout from api.js
     function logout() {
-    apiLogout();
-}
+        apiLogout();
+    }
   </script>
 </body>
 </html>
