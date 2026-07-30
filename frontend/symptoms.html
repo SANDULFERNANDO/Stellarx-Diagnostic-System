@@ -45,7 +45,7 @@
       <p class="text-sm text-slate-500 font-medium">Select the symptoms observed in the patient's skin lesion to assist the AI diagnostic model.</p>
     </div>
 
-    <!-- ==================== IMAGE UPLOAD ZONE (UPDATED) ==================== -->
+    <!-- ==================== IMAGE UPLOAD ZONE ==================== -->
     <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
       <div class="flex items-center justify-between">
         <h3 class="text-sm font-black text-slate-800 flex items-center gap-2">
@@ -159,13 +159,11 @@
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        <!-- Lesion Size (cm) -->
         <div class="space-y-2">
           <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Size (cm)</label>
           <input type="number" id="lesionSizeCm" min="0.1" max="20" step="0.5" value="2.5" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
         </div>
 
-        <!-- Lesion Border -->
         <div class="space-y-2">
           <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Border</label>
           <select id="lesionBorder" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
@@ -175,7 +173,6 @@
           </select>
         </div>
 
-        <!-- Lesion Shape -->
         <div class="space-y-2">
           <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Shape</span>
           <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-2">
@@ -195,10 +192,8 @@
         </div>
       </div>
 
-      <!-- Row 2: Central Clearing + Color + Location -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100">
 
-        <!-- Central Clearing -->
         <div class="space-y-2">
           <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Central Clearing (Ring)</span>
           <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 flex gap-6">
@@ -213,7 +208,6 @@
           </div>
         </div>
 
-        <!-- Lesion Color -->
         <div class="space-y-2">
           <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Color</label>
           <select id="lesionColor" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
@@ -225,7 +219,6 @@
           </select>
         </div>
 
-        <!-- Lesion Location (Multi-select) -->
         <div class="space-y-2">
           <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Location (Select all that apply)</span>
           <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 grid grid-cols-2 gap-2">
@@ -282,7 +275,6 @@
       
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         
-        <!-- Previous Treatment -->
         <div class="space-y-2">
           <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Previous Treatment</label>
           <select id="previousTreatment" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
@@ -294,7 +286,6 @@
           </select>
         </div>
 
-        <!-- Nail Changes -->
         <div class="space-y-2">
           <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nail Changes (discoloration, thickening)</span>
           <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 flex gap-6">
@@ -340,9 +331,35 @@
     // Store uploaded images data
     let uploadedImages = [];
 
+    // ✅ Clear previous case data when starting fresh
+    function clearPreviousCaseData() {
+        // Keep authentication tokens, but clear case-specific data
+        localStorage.removeItem('current_case_id');
+        localStorage.removeItem('current_symptoms');
+        localStorage.removeItem('stellarX_temp_uploaded_image');
+        localStorage.removeItem('stellarX_uploaded_images');
+        localStorage.removeItem('view_case_id');
+        console.log('✅ Cleared previous case data');
+    }
+
     window.onload = function() {
-      lucide.createIcons();
-      updateImageCount();
+        lucide.createIcons();
+        
+        // ✅ Clear previous case data when loading symptoms page
+        clearPreviousCaseData();
+        
+        // Check authentication
+        if (!isAuthenticated()) {
+            redirectToLogin();
+            return;
+        }
+        
+        // Reset image upload UI
+        uploadedImages = [];
+        document.getElementById('imagePreviewContainer').classList.add('hidden');
+        document.getElementById('uploadPromptZone').classList.remove('hidden');
+        document.getElementById('imageCountDisplay').innerText = '0 / 5';
+        document.getElementById('imageValidationMessage').classList.add('hidden');
     }
 
     function handleImagePreview(input) {
@@ -438,32 +455,60 @@
       }
     }
 
+    // ✅ Helper function to extract symptoms from form
+    function getSymptomsFromForm() {
+        const locationCheckboxes = document.querySelectorAll('input[name="lesionLocation"]:checked');
+        const selectedLocations = Array.from(locationCheckboxes).map(cb => cb.value);
+        
+        return {
+            redness: document.getElementById('sympRedness').checked,
+            scaling: document.getElementById('sympScaling').checked,
+            ring_shaped: document.getElementById('sympRing').checked,
+            itching: document.getElementById('sympItching').checked,
+            pain: document.getElementById('sympPain').checked,
+            
+            duration_value: parseInt(document.getElementById('durationValue').value) || null,
+            duration_unit: document.getElementById('durationUnit').value || null,
+            itch_severity: parseInt(document.getElementById('itchSeverity').value) || null,
+            
+            lesion_size_cm: parseFloat(document.getElementById('lesionSizeCm').value) || null,
+            lesion_border: document.getElementById('lesionBorder').value || null,
+            lesion_shape: document.querySelector('input[name="lesionShape"]:checked')?.value || null,
+            lesion_color: document.getElementById('lesionColor').value || null,
+            lesion_locations: selectedLocations.length > 0 ? selectedLocations : null,
+            
+            central_clearing: document.querySelector('input[name="centralClearing"]:checked')?.value === 'yes' || false,
+            previous_treatment: document.getElementById('previousTreatment').value || null,
+            nail_changes: document.querySelector('input[name="nailChanges"]:checked')?.value === 'yes' || false,
+            
+            notes: document.getElementById('clinicalNotes').value || null
+        };
+    }
+
+    // ✅ Updated submission handler
     async function handleAnalysisSubmission() {
-    try {
-        // Get symptoms from form
-        const symptoms = getSymptomsFromForm();
-        
-        // Store in localStorage (for result page)
-        localStorage.setItem('current_symptoms', JSON.stringify(symptoms));
-        
-        // ✅ NEW: Send symptoms to backend
-        const caseId = localStorage.getItem('current_case_id');
-        if (caseId) {
-            try {
-                await apiSaveSymptoms(caseId, symptoms);
-                console.log('✅ Symptoms saved to backend for case:', caseId);
-            } catch (error) {
-                console.warn('⚠️ Failed to save symptoms to backend:', error.message);
-                // Continue anyway - don't block the user
+        try {
+            // Validate image count
+            if (!validateImageCount()) {
+                document.getElementById('imageValidationMessage').classList.remove('hidden');
+                document.getElementById('imageValidationText').innerText = 'Please upload at least 1 image before submitting.';
+                return;
             }
-        }
-        
-        // Create case if not exists (existing code)
-        if (!caseId) {
+            
+            // Save images to localStorage
+            localStorage.setItem('stellarX_uploaded_images', JSON.stringify(uploadedImages));
+            
+            // Get symptoms from form
+            const symptoms = getSymptomsFromForm();
+            
+            // Store in localStorage (for result page)
+            localStorage.setItem('current_symptoms', JSON.stringify(symptoms));
+            
+            // Create a new case
             const caseData = {
                 patient_age: 35,
                 patient_gender: 'male',
-                patient_location: symptoms.lesionLocations?.join(', ') || 'Unknown'
+                patient_location: symptoms.lesion_locations?.join(', ') || 'Unknown'
             };
             
             const newCase = await apiCreateCase(
@@ -472,83 +517,53 @@
                 caseData.patient_location
             );
             
-            const newCaseId = newCase.case_id;
-            localStorage.setItem('current_case_id', newCaseId);
+            const caseId = newCase.case_id;
+            localStorage.setItem('current_case_id', caseId);
+            console.log('✅ New case created:', caseId);
             
-            // Try saving symptoms again with new case ID
-            await apiSaveSymptoms(newCaseId, symptoms);
+            // Save symptoms to backend
+            try {
+                await apiSaveSymptoms(caseId, symptoms);
+                console.log('✅ Symptoms saved for case:', caseId);
+            } catch (error) {
+                console.warn('⚠️ Failed to save symptoms:', error);
+                // Continue anyway - don't block the user
+            }
+            
+            // Save to history (for display)
+            const currentLogs = JSON.parse(localStorage.getItem('stellarX_diagnostic_history')) || [];
+            
+            let calculatedPrediction = "Eczema";
+            let calculatedSeverity = "Moderate";
+            
+            if (document.getElementById('sympRing').checked) {
+                calculatedPrediction = "Tinea Infection";
+                calculatedSeverity = "Severe";
+            } else if (document.getElementById('sympScaling').checked && document.querySelector('input[name="lesionShape"]:checked')?.value === 'Irregular') {
+                calculatedPrediction = "Psoriasis";
+                calculatedSeverity = "Moderate";
+            } else if (document.getElementById('sympItching').checked && !document.getElementById('sympRing').checked) {
+                calculatedPrediction = "Eczema";
+                calculatedSeverity = "Mild";
+            }
+            
+            const newlyGeneratedCase = {
+                caseId: caseId,
+                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                prediction: calculatedPrediction,
+                severity: calculatedSeverity
+            };
+            
+            currentLogs.unshift(newlyGeneratedCase);
+            localStorage.setItem('stellarX_diagnostic_history', JSON.stringify(currentLogs));
+            
+            // Redirect to result
+            window.location.href = 'result.html?case_id=' + caseId;
+            
+        } catch (error) {
+            alert('Error submitting analysis: ' + error.message);
         }
-        
-        // Mock prediction logic (existing code)
-        const currentLogs = JSON.parse(localStorage.getItem('stellarX_diagnostic_history')) || [];
-        
-        let calculatedPrediction = "Eczema";
-        let calculatedSeverity = "Moderate";
-        
-        if (document.getElementById('sympRing').checked) {
-            calculatedPrediction = "Tinea Infection";
-            calculatedSeverity = "Severe";
-        } else if (document.getElementById('sympScaling').checked && document.querySelector('input[name="lesionShape"]:checked')?.value === 'Irregular') {
-            calculatedPrediction = "Psoriasis";
-            calculatedSeverity = "Moderate";
-        } else if (document.getElementById('sympItching').checked && !document.getElementById('sympRing').checked) {
-            calculatedPrediction = "Eczema";
-            calculatedSeverity = "Mild";
-        }
-        
-        const newlyGeneratedCase = {
-            caseId: localStorage.getItem('current_case_id'),
-            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-            prediction: calculatedPrediction,
-            severity: calculatedSeverity
-        };
-        
-        currentLogs.unshift(newlyGeneratedCase);
-        localStorage.setItem('stellarX_diagnostic_history', JSON.stringify(currentLogs));
-        
-        window.location.href = 'result.html';
-        
-    } catch (error) {
-        alert('Error submitting analysis: ' + error.message);
     }
-}
-
-// ✅ Helper function to extract symptoms from form
-function getSymptomsFromForm() {
-    // Capture multiple selected locations
-    const locationCheckboxes = document.querySelectorAll('input[name="lesionLocation"]:checked');
-    const selectedLocations = Array.from(locationCheckboxes).map(cb => cb.value);
-    
-    return {
-        // Basic Symptoms (checkboxes)
-        redness: document.getElementById('sympRedness').checked,
-        scaling: document.getElementById('sympScaling').checked,
-        ring_shaped: document.getElementById('sympRing').checked,
-        itching: document.getElementById('sympItching').checked,
-        pain: document.getElementById('sympPain').checked,
-        
-        // Duration & Severity
-        duration_value: parseInt(document.getElementById('durationValue').value) || null,
-        duration_unit: document.getElementById('durationUnit').value || null,
-        itch_severity: parseInt(document.getElementById('itchSeverity').value) || null,
-        
-        // Lesion Characteristics
-        lesion_size_cm: parseFloat(document.getElementById('lesionSizeCm').value) || null,
-        lesion_border: document.getElementById('lesionBorder').value || null,
-        lesion_shape: document.querySelector('input[name="lesionShape"]:checked')?.value || null,
-        lesion_color: document.getElementById('lesionColor').value || null,
-        lesion_locations: selectedLocations.length > 0 ? selectedLocations : null,
-        
-        // Additional Clinical Signs
-        central_clearing: document.querySelector('input[name="centralClearing"]:checked')?.value === 'yes' || false,
-        previous_treatment: document.getElementById('previousTreatment').value || null,
-        nail_changes: document.querySelector('input[name="nailChanges"]:checked')?.value === 'yes' || false,
-        
-        // Notes
-        notes: document.getElementById('clinicalNotes').value || null
-    };
-}
-    
   </script>
 </body>
 </html>
