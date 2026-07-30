@@ -23,7 +23,7 @@
 </head>
 <body class="bg-[#f4f7f9] min-h-screen text-slate-800 font-sans antialiased relative pb-24">
 
-  <!-- Navigation -->
+  <!-- ================= TOP NAVIGATION BAR ================= -->
   <nav class="bg-white border-b border-slate-100 px-6 md:px-16 py-4 flex items-center justify-between shadow-sm">
     <div class="flex items-center space-x-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
       <i data-lucide="layers" class="w-6 h-6 text-[#114a72]"></i>
@@ -36,7 +36,7 @@
     </div>
   </nav>
 
-  <!-- Main Content -->
+  <!-- ================= MAIN WORKSPACE CONTENT ================= -->
   <main class="max-w-7xl mx-auto px-6 mt-10 space-y-6">
     
     <div class="space-y-1">
@@ -116,11 +116,9 @@
         <div class="space-y-2">
           <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">1. Uploaded Clinical Images</span>
           <div class="border border-slate-200 rounded-xl bg-slate-50/50 p-2 min-h-[220px] flex items-center justify-center relative overflow-hidden">
-            <!-- Image Gallery Container -->
             <div id="imageGalleryContainer" class="grid grid-cols-2 md:grid-cols-3 gap-2 w-full hidden">
               <!-- Images will be dynamically inserted here -->
             </div>
-            <!-- Placeholder -->
             <div id="resultImagePlaceholder" class="text-xs font-bold text-slate-400 tracking-wide block">
               No images uploaded
             </div>
@@ -131,14 +129,14 @@
         <div class="space-y-2">
           <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">2. Selected Symptoms</span>
           <div id="symptomBadgeCloud" class="flex flex-wrap gap-2 pt-1">
-            <span class="text-xs text-slate-400">No symptoms recorded</span>
+            <span class="text-xs text-slate-400">Loading symptoms...</span>
           </div>
         </div>
       </div>
 
     </div>
 
-    <!-- Bottom Actions -->
+    <!-- ================= BOTTOM NAV ROW ================= -->
     <div class="flex items-center justify-end gap-3 pt-6">
       <button onclick="window.location.href='history.html'" class="px-6 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-sm">
         View History
@@ -153,16 +151,35 @@
 
   </main>
 
-  <!-- JavaScript -->
+  <!-- ================= JAVASCRIPT ================= -->
   <script>
     window.onload = async function() {
         lucide.createIcons();
-        await loadAllImagesFromBackend();
-        loadSymptomsFromLocalStorage();
+        
+        // ✅ Get case ID from URL parameter or localStorage
+        const urlParams = new URLSearchParams(window.location.search);
+        const caseIdFromUrl = urlParams.get('case_id');
+        let caseId = caseIdFromUrl || localStorage.getItem('current_case_id');
+        
+        if (!caseId) {
+            // ✅ No case ID found – redirect to symptoms
+            alert('No case found. Please start a new case.');
+            window.location.href = 'symptoms.html';
+            return;
+        }
+        
+        // ✅ Store the case ID for use in other functions
+        localStorage.setItem('current_case_id', caseId);
+        console.log('✅ Loading result for case:', caseId);
+        
+        await loadAllImagesFromBackend(caseId);
+        await loadSymptomsFromBackend(caseId);
     }
 
-    async function loadAllImagesFromBackend() {
-        const caseId = localStorage.getItem('current_case_id');
+    // ============================================
+    // 1. LOAD IMAGES FROM BACKEND
+    // ============================================
+    async function loadAllImagesFromBackend(caseId) {
         const placeholder = document.getElementById('resultImagePlaceholder');
         const gallery = document.getElementById('imageGalleryContainer');
         
@@ -217,6 +234,9 @@
         }
     }
 
+    // ============================================
+    // 2. FALLBACK: LOAD FROM LOCALSTORAGE
+    // ============================================
     function tryLoadFromLocalStorage() {
         const placeholder = document.getElementById('resultImagePlaceholder');
         const gallery = document.getElementById('imageGalleryContainer');
@@ -240,38 +260,71 @@
         }
     }
 
-    function loadSymptomsFromLocalStorage() {
-        const symptomsData = localStorage.getItem('current_symptoms');
-        if (!symptomsData) return;
+    // ============================================
+    // 3. LOAD SYMPTOMS FROM BACKEND
+    // ============================================
+    async function loadSymptomsFromBackend(caseId) {
+        const badgeCloud = document.getElementById('symptomBadgeCloud');
+        
+        if (!caseId || !badgeCloud) return;
         
         try {
-            const symptoms = JSON.parse(symptomsData);
-            const badgeCloud = document.getElementById('symptomBadgeCloud');
-            if (badgeCloud) {
-                const symptomList = [];
-                if (symptoms.redness) symptomList.push('Redness');
-                if (symptoms.scaling) symptomList.push('Scaling');
-                if (symptoms.ring) symptomList.push('Ring-shaped lesion');
-                if (symptoms.itching) symptomList.push('Itching');
-                if (symptoms.pain) symptomList.push('Pain / Tenderness');
-                if (symptoms.lesionLocations && symptoms.lesionLocations.length > 0) {
-                    symptomList.push(...symptoms.lesionLocations);
-                }
-                
-                badgeCloud.innerHTML = symptomList.length > 0 
-                    ? symptomList.map(s => 
-                        `<span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">${s}</span>`
-                      ).join('')
-                    : '<span class="text-xs text-slate-400">No symptoms recorded</span>';
+            const symptomData = await apiGetSymptoms(caseId);
+            
+            // Build symptom list
+            const symptomList = [];
+            if (symptomData.redness) symptomList.push('Redness');
+            if (symptomData.scaling) symptomList.push('Scaling');
+            if (symptomData.ring_shaped) symptomList.push('Ring-shaped lesion');
+            if (symptomData.itching) symptomList.push('Itching');
+            if (symptomData.pain) symptomList.push('Pain / Tenderness');
+            if (symptomData.lesion_locations && symptomData.lesion_locations.length > 0) {
+                symptomList.push(...symptomData.lesion_locations);
             }
-        } catch (e) {
-            console.error('Failed to load symptoms:', e);
+            
+            badgeCloud.innerHTML = symptomList.length > 0 
+                ? symptomList.map(s => 
+                    `<span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">${s}</span>`
+                  ).join('')
+                : '<span class="text-xs text-slate-400">No symptoms recorded</span>';
+            
+        } catch (error) {
+            console.warn('Failed to load symptoms from backend:', error);
+            // Fallback to localStorage
+            const symptomsData = localStorage.getItem('current_symptoms');
+            if (symptomsData) {
+                try {
+                    const symptoms = JSON.parse(symptomsData);
+                    const symptomList = [];
+                    if (symptoms.redness) symptomList.push('Redness');
+                    if (symptoms.scaling) symptomList.push('Scaling');
+                    if (symptoms.ring) symptomList.push('Ring-shaped lesion');
+                    if (symptoms.itching) symptomList.push('Itching');
+                    if (symptoms.pain) symptomList.push('Pain / Tenderness');
+                    if (symptoms.lesionLocations) symptomList.push(...symptoms.lesionLocations);
+                    
+                    badgeCloud.innerHTML = symptomList.length > 0 
+                        ? symptomList.map(s => 
+                            `<span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">${s}</span>`
+                          ).join('')
+                        : '<span class="text-xs text-slate-400">No symptoms recorded</span>';
+                } catch (e) {
+                    badgeCloud.innerHTML = '<span class="text-xs text-slate-400">No symptoms recorded</span>';
+                }
+            } else {
+                badgeCloud.innerHTML = '<span class="text-xs text-slate-400">No symptoms recorded</span>';
+            }
         }
     }
 
+    // ============================================
+    // 4. CLEAR AND NAVIGATE TO SYMPTOMS
+    // ============================================
     function clearAndNavigateToSymptoms() {
         localStorage.removeItem('stellarX_temp_uploaded_image');
         localStorage.removeItem('stellarX_uploaded_images');
+        localStorage.removeItem('current_case_id');
+        localStorage.removeItem('current_symptoms');
         window.location.href = 'symptoms.html';
     }
   </script>
