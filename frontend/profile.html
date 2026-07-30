@@ -6,7 +6,7 @@
   <title>StellarX - Profile Management</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
-  <script src="api.js"></script>  <!-- ✅ ADD THIS -->
+  <script src="api.js"></script>
   <script>
     tailwind.config = {
       theme: { extend: { colors: { stellarNavy: '#114a72', stellarDark: '#0f2d4a' } } }
@@ -112,12 +112,12 @@
     let isEditMode = false;
     let currentUser = null;
 
-    // ✅ UPDATED: Check authentication first
+    // ✅ Updated: Check authentication properly
     window.onload = function() {
         lucide.createIcons();
         
-        // ✅ Redirect to login if not authenticated
-        if (!isAuthenticated()) {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
             redirectToLogin();
             return;
         }
@@ -125,24 +125,52 @@
         loadUserProfile();
     }
 
+    // ✅ New: Display user profile
+    function displayUserProfile(user) {
+        currentUser = user;
+        
+        const displayName = user.first_name || user.name || user.username || 'Medical Professional';
+        const displayPosition = user.position || 'Healthcare Practitioner';
+        const displayEmail = user.email || '';
+        const displayPhone = user.phone || '+94 77 123 4567';
+        
+        document.getElementById('profileName').value = displayName;
+        document.getElementById('profilePosition').value = displayPosition;
+        document.getElementById('profileEmail').value = displayEmail;
+        document.getElementById('profilePhone').value = displayPhone;
+        
+        document.getElementById('displayHeaderName').innerText = displayName;
+        document.getElementById('displayHeaderPosition').innerText = displayPosition;
+    }
+
+    // ✅ Updated: Load user profile
     function loadUserProfile() {
-      currentUser = getCurrentUser();
-      
-      if (!currentUser) {
-        window.location.href = 'login.html';
-        return;
-      }
-
-      if (!currentUser.position) currentUser.position = "Healthcare Practitioner";
-      if (!currentUser.phone) currentUser.phone = "+94 77 123 4567";
-
-      document.getElementById('profileName').value = currentUser.name || currentUser.first_name || '';
-      document.getElementById('profilePosition').value = currentUser.position;
-      document.getElementById('profileEmail').value = currentUser.email;
-      document.getElementById('profilePhone').value = currentUser.phone;
-
-      document.getElementById('displayHeaderName').innerText = currentUser.name || currentUser.first_name || 'Medical Professional';
-      document.getElementById('displayHeaderPosition').innerText = currentUser.position;
+        // Try multiple storage keys
+        let userStr = localStorage.getItem('user');
+        if (!userStr) {
+            userStr = localStorage.getItem('current_user');
+        }
+        
+        if (userStr) {
+            try {
+                const user = JSON.parse(userStr);
+                displayUserProfile(user);
+                return;
+            } catch (e) {
+                console.error('Failed to parse user data:', e);
+            }
+        }
+        
+        // Try API fallback
+        apiGetCurrentUser().then(user => {
+            if (user) {
+                localStorage.setItem('user', JSON.stringify(user));
+                localStorage.setItem('current_user', JSON.stringify(user));
+                displayUserProfile(user);
+            }
+        }).catch(() => {
+            window.location.href = 'login.html';
+        });
     }
 
     function toggleEditMode() {
@@ -205,13 +233,14 @@
 
       localStorage.setItem('stellarX_users_list', JSON.stringify(usersList));
       localStorage.setItem('stellarX_current_user', JSON.stringify(currentUser));
+      localStorage.setItem('user', JSON.stringify(currentUser));
+      localStorage.setItem('current_user', JSON.stringify(currentUser));
 
       alert('Profile updated successfully!');
       cancelEditMode();
       loadUserProfile();
     }
 
-    // ✅ UPDATED: Use apiLogout from api.js
     function logout() {
         apiLogout();
     }

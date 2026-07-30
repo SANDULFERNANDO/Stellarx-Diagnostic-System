@@ -29,7 +29,6 @@
       <i data-lucide="layers" class="w-6 h-6 text-[#114a72]"></i>
       <span class="text-xl font-black tracking-tight text-[#114a72]">StellarX</span>
     </div>
-
     <div class="flex items-center">
       <a href="profile.html" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-600 transition-colors">
         <i data-lucide="user" class="w-4 h-4"></i>
@@ -46,40 +45,81 @@
       <p class="text-sm text-slate-500 font-medium">Select the symptoms observed in the patient's skin lesion to assist the AI diagnostic model.</p>
     </div>
 
-    <!-- 0. IMAGE UPLOAD ZONE -->
-    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-3">
-      <h3 class="text-sm font-black text-slate-800 flex items-center gap-2">
-        <i data-lucide="image" class="w-4 h-4 text-[#114a72]"></i> Upload Clinical Image
-      </h3>
+    <!-- ==================== IMAGE UPLOAD ZONE (UPDATED) ==================== -->
+    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-black text-slate-800 flex items-center gap-2">
+          <i data-lucide="image" class="w-4 h-4 text-[#114a72]"></i> Upload Clinical Images
+        </h3>
+        <span id="imageCountDisplay" class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+          0 / 5
+        </span>
+      </div>
+
+      <!-- Image Upload Area -->
       <div class="border-2 border-dashed border-slate-200 hover:border-[#3b93d7] rounded-xl bg-slate-50/50 p-6 text-center cursor-pointer transition-colors relative group">
-        <!-- input id එක clinicalImageInput ලෙස තබා ඇත -->
-        <input type="file" id="clinicalImageInput" class="absolute inset-0 opacity-0 cursor-pointer" onchange="handleImagePreview(this)">
+        <input type="file" id="clinicalImageInput" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" multiple onchange="handleImagePreview(this)">
         <div class="space-y-2" id="uploadPromptZone">
           <div class="w-10 h-10 bg-sky-50 text-[#114a72] rounded-full flex items-center justify-center mx-auto group-hover:scale-105 transition-transform">
             <i data-lucide="upload-cloud" class="w-5 h-5"></i>
           </div>
-          <p class="text-xs font-bold text-slate-700">Drag and drop patient lesion image here, or <span class="text-[#3b93d7] hover:underline">browse</span></p>
-          <p class="text-[10px] text-slate-400 font-medium">Supports JPG, PNG formats up to 5MB</p>
+          <p class="text-xs font-bold text-slate-700">Drag and drop patient lesion images here, or <span class="text-[#3b93d7] hover:underline">browse</span></p>
+          <p class="text-[10px] text-slate-400 font-medium">Supports JPG, PNG formats • Min: 1 • Max: 5 images</p>
         </div>
-        <!-- Preview Container -->
-        <div id="imagePreviewContainer" class="hidden flex flex-col items-center justify-center space-y-2">
-          <img id="imagePreview" src="#" alt="Preview" class="max-h-32 rounded-lg border border-slate-200 shadow-sm">
-          <span class="text-xs font-bold text-emerald-600 flex items-center gap-1"><i data-lucide="check-circle" class="w-3.5 h-3.5"></i> Image Loaded Successfully</span>
-        </div>
+        <div id="imagePreviewContainer" class="hidden flex flex-wrap gap-3 justify-center mt-3"></div>
+      </div>
+
+      <!-- Validation Messages -->
+      <div id="imageValidationMessage" class="hidden text-xs font-bold text-red-500 flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4"></i>
+        <span id="imageValidationText">Please upload at least 1 image before submitting.</span>
       </div>
     </div>
 
-    <!-- 1. VISUAL APPEARANCE & SENSATION ROW -->
+    <!-- ==================== SECTION 1: DURATION & SEVERITY ==================== -->
+    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+      
+      <div class="space-y-2">
+        <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
+          <i data-lucide="clock" class="w-4 h-4 text-[#114a72]"></i> Duration & Severity
+        </h3>
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Duration of Symptoms</label>
+          <div class="flex gap-3 mt-1">
+            <input type="number" id="durationValue" min="1" value="1" class="w-1/3 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72]">
+            <select id="durationUnit" class="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
+              <option value="days">Days</option>
+              <option value="weeks" selected>Weeks</option>
+              <option value="months">Months</option>
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <div class="space-y-2">
+        <div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Itch Severity</label>
+          <div class="flex items-center gap-4 mt-1">
+            <span class="text-[10px] font-bold text-slate-400">Mild</span>
+            <input type="range" id="itchSeverity" min="1" max="10" value="5" oninput="document.getElementById('itchDisplay').innerText = this.value" class="flex-1 accent-[#114a72]">
+            <span class="text-[10px] font-bold text-slate-400">Severe</span>
+            <span id="itchDisplay" class="text-sm font-black text-[#114a72] w-6 text-center">5</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ==================== SECTION 2: VISUAL APPEARANCE & SENSATION ==================== -->
     <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
       
-      <!-- Visual Appearance Column -->
       <div class="space-y-4">
         <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
           <i data-lucide="eye" class="w-4 h-4 text-[#114a72]"></i> Visual Appearance
         </h3>
         <div class="space-y-3">
           <label class="flex items-center gap-3 cursor-pointer select-none text-xs font-bold text-slate-700">
-            <input type="checkbox" id="sympRedness" checked class="w-4 h-4 rounded text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+            <input type="checkbox" id="sympRedness" class="w-4 h-4 rounded text-[#114a72] border-slate-300 focus:ring-[#114a72]">
             <span>Redness</span>
           </label>
           <label class="flex items-center gap-3 cursor-pointer select-none text-xs font-bold text-slate-700">
@@ -93,7 +133,6 @@
         </div>
       </div>
 
-      <!-- Sensation Column -->
       <div class="space-y-4">
         <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
           <i data-lucide="smile" class="w-4 h-4 text-[#114a72]"></i> Sensation
@@ -105,43 +144,41 @@
           </label>
           <label class="flex items-center gap-3 cursor-pointer select-none text-xs font-bold text-slate-700">
             <input type="checkbox" id="sympPain" class="w-4 h-4 rounded text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-            <span>Pain</span>
+            <span>Pain / Tenderness</span>
           </label>
         </div>
       </div>
 
     </div>
 
-    <!-- 2. LESION CHARACTERISTICS LAYER -->
+    <!-- ==================== SECTION 3: LESION CHARACTERISTICS ==================== -->
     <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
       <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
         <i data-lucide="user" class="w-4 h-4 text-[#114a72]"></i> Lesion Characteristics
       </h3>
       
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <!-- Lesion Size -->
+        
+        <!-- Lesion Size (cm) -->
         <div class="space-y-2">
-          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Size</span>
-          <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-4 space-y-3">
-            <label class="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="radio" name="lesionSize" value="Small (< 1 cm)" checked class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Small (&lt; 1 cm)</span>
-            </label>
-            <label class="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="radio" name="lesionSize" value="Medium (1-3 cm)" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Medium (1–3 cm)</span>
-            </label>
-            <label class="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="radio" name="lesionSize" value="Large (> 3 cm)" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Large (&gt; 3 cm)</span>
-            </label>
-          </div>
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Size (cm)</label>
+          <input type="number" id="lesionSizeCm" min="0.1" max="20" step="0.5" value="2.5" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
+        </div>
+
+        <!-- Lesion Border -->
+        <div class="space-y-2">
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Border</label>
+          <select id="lesionBorder" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
+            <option value="well_defined">Well-defined, raised</option>
+            <option value="ill_defined">Ill-defined, diffuse</option>
+            <option value="irregular">Irregular</option>
+          </select>
         </div>
 
         <!-- Lesion Shape -->
         <div class="space-y-2">
           <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Shape</span>
-          <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-4 space-y-3">
+          <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-2">
             <label class="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-700">
               <input type="radio" name="lesionShape" value="Circular" checked class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
               <span>Circular</span>
@@ -156,21 +193,125 @@
             </label>
           </div>
         </div>
+      </div>
 
-        <!-- Lesion Location -->
+      <!-- Row 2: Central Clearing + Color + Location -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100">
+
+        <!-- Central Clearing -->
         <div class="space-y-2">
-          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Location</span>
-          <select id="lesionLocation" class="w-full text-xs font-bold p-3 bg-white border border-slate-200 rounded-xl focus:outline-none focus:border-[#114a72] transition-colors appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2224%22%20height%3D%2224%22%20viewBox%3D%220%200%2024%2024%20fill%3D%22none%22%20stroke%3D%22currentColor%22%20stroke-width%3D%222%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Cpolyline%20points%3D%226%209%2012%2015%2018%209%22%3E%3C%2Fpolyline%3E%3C%2Fsvg%3E')] bg-[length:16px] bg-[right_12px_center] bg-no-repeat pr-10">
-            <option>Arm, leg, face, torso</option>
-            <option>Head / Scalp</option>
-            <option>Hands / Feet</option>
-            <option>Back / Neck</option>
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Central Clearing (Ring)</span>
+          <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 flex gap-6">
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="radio" id="centralClearingYes" name="centralClearing" value="yes" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Yes</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="radio" id="centralClearingNo" name="centralClearing" value="no" checked class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>No</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- Lesion Color -->
+        <div class="space-y-2">
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Color</label>
+          <select id="lesionColor" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
+            <option value="red">Red</option>
+            <option value="pink">Pink</option>
+            <option value="brown">Brown</option>
+            <option value="silver_white">Silver/White (Scaly)</option>
+            <option value="dark">Dark/Black</option>
           </select>
+        </div>
+
+        <!-- Lesion Location (Multi-select) -->
+        <div class="space-y-2">
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Location (Select all that apply)</span>
+          <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 grid grid-cols-2 gap-2">
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="checkbox" name="lesionLocation" value="Arms" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Arms</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="checkbox" name="lesionLocation" value="Legs" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Legs</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="checkbox" name="lesionLocation" value="Face" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Face</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="checkbox" name="lesionLocation" value="Hands" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Hands</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="checkbox" name="lesionLocation" value="Feet" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Feet</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="checkbox" name="lesionLocation" value="Scalp" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Scalp</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="checkbox" name="lesionLocation" value="Back" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Back</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="checkbox" name="lesionLocation" value="Neck" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Neck</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="checkbox" name="lesionLocation" value="Chest" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Chest</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="checkbox" name="lesionLocation" value="Abdomen" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Abdomen</span>
+            </label>
+          </div>
         </div>
       </div>
     </div>
 
-    <!-- 3. ADDITIONAL NOTES -->
+    <!-- ==================== SECTION 4: ADDITIONAL CLINICAL SIGNS ==================== -->
+    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
+      <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
+        <i data-lucide="activity" class="w-4 h-4 text-[#114a72]"></i> Additional Clinical Signs
+      </h3>
+      
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        
+        <!-- Previous Treatment -->
+        <div class="space-y-2">
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Previous Treatment</label>
+          <select id="previousTreatment" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
+            <option value="none">None</option>
+            <option value="topical_steroid">Topical steroid (cream)</option>
+            <option value="antifungal_cream">Antifungal cream</option>
+            <option value="oral_antifungal">Oral antifungal</option>
+            <option value="unknown">Unknown</option>
+          </select>
+        </div>
+
+        <!-- Nail Changes -->
+        <div class="space-y-2">
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nail Changes (discoloration, thickening)</span>
+          <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 flex gap-6">
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="radio" id="nailChangesYes" name="nailChanges" value="yes" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>Yes</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
+              <input type="radio" id="nailChangesNo" name="nailChanges" value="no" checked class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
+              <span>No</span>
+            </label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== SECTION 5: ADDITIONAL NOTES ==================== -->
     <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
       <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
         <i data-lucide="file-text" class="w-4 h-4 text-[#114a72]"></i> Additional Notes
@@ -196,76 +337,167 @@
 
   <!-- ================= JAVASCRIPT CORE OPERATIONS ================= -->
   <script>
+    // Store uploaded images data
+    let uploadedImages = [];
+
     window.onload = function() {
       lucide.createIcons();
+      updateImageCount();
     }
 
     function handleImagePreview(input) {
-      if (input.files && input.files[0]) {
-        var reader = new FileReader();
+      const files = input.files;
+      
+      if (files.length === 0) return;
+      
+      // Check max limit
+      if (uploadedImages.length + files.length > 5) {
+        alert('Maximum 5 images allowed. You already have ' + uploadedImages.length + ' image(s).');
+        input.value = '';
+        return;
+      }
+      
+      // Process each file
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        
         reader.onload = function(e) {
-          document.getElementById('uploadPromptZone').classList.add('hidden');
-          document.getElementById('imagePreviewContainer').classList.remove('hidden');
-          document.getElementById('imagePreview').setAttribute('src', e.target.result);
+          uploadedImages.push({
+            name: file.name,
+            data: e.target.result
+          });
           
-
-          localStorage.setItem('stellarX_temp_uploaded_image', e.target.result);
+          // Update UI
+          renderImagePreviews();
+          updateImageCount();
+          validateImageCount();
         }
-        reader.readAsDataURL(input.files[0]);
+        
+        reader.readAsDataURL(file);
+      }
+      
+      // Reset input
+      input.value = '';
+    }
+
+    function renderImagePreviews() {
+      const container = document.getElementById('imagePreviewContainer');
+      container.classList.remove('hidden');
+      
+      let html = '';
+      uploadedImages.forEach((img, index) => {
+        html += `
+          <div class="relative group">
+            <img src="${img.data}" alt="Uploaded ${index + 1}" class="w-20 h-20 object-cover rounded-lg border border-slate-200 shadow-sm">
+            <button onclick="removeImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors shadow-md opacity-0 group-hover:opacity-100">
+              ✕
+            </button>
+            <span class="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[8px] text-center py-0.5 rounded-b-lg">${index + 1}</span>
+          </div>
+        `;
+      });
+      
+      container.innerHTML = html;
+      
+      // Show/hide upload prompt
+      document.getElementById('uploadPromptZone').classList.toggle('hidden', uploadedImages.length > 0);
+    }
+
+    function removeImage(index) {
+      uploadedImages.splice(index, 1);
+      renderImagePreviews();
+      updateImageCount();
+      validateImageCount();
+      
+      if (uploadedImages.length === 0) {
+        document.getElementById('imagePreviewContainer').classList.add('hidden');
+        document.getElementById('uploadPromptZone').classList.remove('hidden');
+      }
+    }
+
+    function updateImageCount() {
+      document.getElementById('imageCountDisplay').innerText = `${uploadedImages.length} / 5`;
+    }
+
+    function validateImageCount() {
+      const msg = document.getElementById('imageValidationMessage');
+      const text = document.getElementById('imageValidationText');
+      
+      if (uploadedImages.length === 0) {
+        msg.classList.remove('hidden');
+        text.innerText = 'Please upload at least 1 image before submitting.';
+        return false;
+      } else if (uploadedImages.length > 5) {
+        msg.classList.remove('hidden');
+        text.innerText = 'Maximum 5 images allowed.';
+        return false;
+      } else {
+        msg.classList.add('hidden');
+        return true;
       }
     }
 
     async function handleAnalysisSubmission() {
     try {
-        // Get symptoms
-        const symptoms = {
-            redness: document.getElementById('sympRedness').checked,
-            scaling: document.getElementById('sympScaling').checked,
-            ring: document.getElementById('sympRing').checked,
-            itching: document.getElementById('sympItching').checked,
-            pain: document.getElementById('sympPain').checked,
-            lesionSize: document.querySelector('input[name="lesionSize"]:checked')?.value || '',
-            lesionShape: document.querySelector('input[name="lesionShape"]:checked')?.value || '',
-            lesionLocation: document.getElementById('lesionLocation').value,
-            notes: document.getElementById('clinicalNotes').value
-        };
+        // Get symptoms from form
+        const symptoms = getSymptomsFromForm();
         
-        // Create case
-        const caseData = {
-            patient_age: 35,
-            patient_gender: 'male',
-            patient_location: symptoms.lesionLocation || 'Unknown'
-        };
-        
-        const newCase = await apiCreateCase(
-            caseData.patient_age,
-            caseData.patient_gender,
-            caseData.patient_location
-        );
-        
-        const caseId = newCase.case_id;
-        localStorage.setItem('current_case_id', caseId);
+        // Store in localStorage (for result page)
         localStorage.setItem('current_symptoms', JSON.stringify(symptoms));
         
-        // History
+        // ✅ NEW: Send symptoms to backend
+        const caseId = localStorage.getItem('current_case_id');
+        if (caseId) {
+            try {
+                await apiSaveSymptoms(caseId, symptoms);
+                console.log('✅ Symptoms saved to backend for case:', caseId);
+            } catch (error) {
+                console.warn('⚠️ Failed to save symptoms to backend:', error.message);
+                // Continue anyway - don't block the user
+            }
+        }
+        
+        // Create case if not exists (existing code)
+        if (!caseId) {
+            const caseData = {
+                patient_age: 35,
+                patient_gender: 'male',
+                patient_location: symptoms.lesionLocations?.join(', ') || 'Unknown'
+            };
+            
+            const newCase = await apiCreateCase(
+                caseData.patient_age,
+                caseData.patient_gender,
+                caseData.patient_location
+            );
+            
+            const newCaseId = newCase.case_id;
+            localStorage.setItem('current_case_id', newCaseId);
+            
+            // Try saving symptoms again with new case ID
+            await apiSaveSymptoms(newCaseId, symptoms);
+        }
+        
+        // Mock prediction logic (existing code)
         const currentLogs = JSON.parse(localStorage.getItem('stellarX_diagnostic_history')) || [];
         
-        let calculatedPrediction = "Tinea Infection";
-        let calculatedSeverity = "Severe";
+        let calculatedPrediction = "Eczema";
+        let calculatedSeverity = "Moderate";
         
         if (document.getElementById('sympRing').checked) {
             calculatedPrediction = "Tinea Infection";
             calculatedSeverity = "Severe";
-        } else if (document.getElementById('sympScaling').checked) {
+        } else if (document.getElementById('sympScaling').checked && document.querySelector('input[name="lesionShape"]:checked')?.value === 'Irregular') {
             calculatedPrediction = "Psoriasis";
             calculatedSeverity = "Moderate";
-        } else if (document.getElementById('sympItching').checked) {
+        } else if (document.getElementById('sympItching').checked && !document.getElementById('sympRing').checked) {
             calculatedPrediction = "Eczema";
             calculatedSeverity = "Mild";
         }
         
         const newlyGeneratedCase = {
-            caseId: caseId,
+            caseId: localStorage.getItem('current_case_id'),
             date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
             prediction: calculatedPrediction,
             severity: calculatedSeverity
@@ -280,6 +512,43 @@
         alert('Error submitting analysis: ' + error.message);
     }
 }
+
+// ✅ Helper function to extract symptoms from form
+function getSymptomsFromForm() {
+    // Capture multiple selected locations
+    const locationCheckboxes = document.querySelectorAll('input[name="lesionLocation"]:checked');
+    const selectedLocations = Array.from(locationCheckboxes).map(cb => cb.value);
+    
+    return {
+        // Basic Symptoms (checkboxes)
+        redness: document.getElementById('sympRedness').checked,
+        scaling: document.getElementById('sympScaling').checked,
+        ring_shaped: document.getElementById('sympRing').checked,
+        itching: document.getElementById('sympItching').checked,
+        pain: document.getElementById('sympPain').checked,
+        
+        // Duration & Severity
+        duration_value: parseInt(document.getElementById('durationValue').value) || null,
+        duration_unit: document.getElementById('durationUnit').value || null,
+        itch_severity: parseInt(document.getElementById('itchSeverity').value) || null,
+        
+        // Lesion Characteristics
+        lesion_size_cm: parseFloat(document.getElementById('lesionSizeCm').value) || null,
+        lesion_border: document.getElementById('lesionBorder').value || null,
+        lesion_shape: document.querySelector('input[name="lesionShape"]:checked')?.value || null,
+        lesion_color: document.getElementById('lesionColor').value || null,
+        lesion_locations: selectedLocations.length > 0 ? selectedLocations : null,
+        
+        // Additional Clinical Signs
+        central_clearing: document.querySelector('input[name="centralClearing"]:checked')?.value === 'yes' || false,
+        previous_treatment: document.getElementById('previousTreatment').value || null,
+        nail_changes: document.querySelector('input[name="nailChanges"]:checked')?.value === 'yes' || false,
+        
+        // Notes
+        notes: document.getElementById('clinicalNotes').value || null
+    };
+}
+    
   </script>
 </body>
 </html>
