@@ -1,8 +1,8 @@
 # backend/app/models.py
+import uuid
 from sqlalchemy import Column, Integer, String, Boolean, DateTime, Date, Float, Text  # ← ADD Float, Text
 from sqlalchemy.sql import func
 from app.database import Base
-import uuid
 
 # =====================================================
 # AUTH MODELS
@@ -27,13 +27,12 @@ class HealthcareWorker(Base):
 
 class Session(Base):
     __tablename__ = "sessions"
-
-    session_id  = Column(String(36), primary_key=True)
-    user_id     = Column(Integer, nullable=False)
-    token       = Column(String(500), nullable=False)
-    expires_at  = Column(DateTime, nullable=False)
-    created_at  = Column(DateTime, server_default=func.now())
-
+    
+    session_id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))  # ✅ Auto-generate UUID
+    user_id = Column(Integer, nullable=False)
+    token = Column(String(500), nullable=False)
+    expires_at = Column(DateTime, nullable=False)
+    created_at = Column(DateTime, server_default=func.now())
 
 # =====================================================
 # CASE MODEL
