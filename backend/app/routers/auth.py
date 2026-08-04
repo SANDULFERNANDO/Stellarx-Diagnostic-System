@@ -144,3 +144,34 @@ def reset_password(token: str, new_password: str, db: Session = Depends(get_db))
     db.commit()
     
     return {"message": "Password reset successfully. Please login with your new password."}
+
+# =====================================================
+# CHANGE PASSWORD (FR-14)
+# =====================================================
+
+@router.post("/change-password")
+def change_password(
+    current_password: str,
+    new_password: str,
+    db: Session = Depends(get_db),
+    current_user: HealthcareWorker = Depends(get_current_user)  # ✅ Requires authentication
+):
+    # Verify current password
+    if not verify_password(current_password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Current password is incorrect"
+        )
+    
+    # Validate new password
+    if len(new_password) < 8:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Password must be at least 8 characters"
+        )
+    
+    # Update password
+    current_user.password_hash = get_password_hash(new_password)
+    db.commit()
+    
+    return {"message": "Password changed successfully"}

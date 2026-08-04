@@ -159,6 +159,19 @@ async function apiDeleteSymptoms(caseId) {
 }
 
 // =====================================================
+// CHANGE PASSWORD (FR-14)
+// =====================================================
+
+async function apiChangePassword(currentPassword, newPassword) {
+    return apiRequest(
+        `/auth/change-password?current_password=${encodeURIComponent(currentPassword)}&new_password=${encodeURIComponent(newPassword)}`,
+        'POST',
+        null,
+        true
+    );
+}
+
+// =====================================================
 // ANALYSIS APIS (NEW)
 // =====================================================
 
