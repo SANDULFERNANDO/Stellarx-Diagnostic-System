@@ -51,3 +51,18 @@ def get_current_user(
     if user is None:
         raise credentials_exception
     return user
+
+# =====================================================
+# ADD THIS FUNCTION (at the bottom of the file)
+# =====================================================
+
+def verify_token(token: str):
+    """
+    Verify JWT token and return payload.
+    Returns None if token is invalid or expired.
+    """
+    try:
+        payload = jwt.decode(token, JWT_SECRET_KEY, algorithms=[JWT_ALGORITHM])
+        return payload
+    except JWTError:
+        return None

@@ -16,7 +16,6 @@ async function apiRequest(endpoint, method = 'GET', body = null, requiresAuth = 
         'Content-Type': 'application/json',
     };
     
-    // Add Authorization header if required
     if (requiresAuth) {
         const token = localStorage.getItem('access_token');
         if (!token) {
@@ -36,9 +35,23 @@ async function apiRequest(endpoint, method = 'GET', body = null, requiresAuth = 
     
     const response = await fetch(url, options);
     
+    // ✅ If response is not OK, extract error message
     if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Error: ${response.status}`);
+        let errorMessage = `HTTP ${response.status}`;
+        try {
+            const errorData = await response.json();
+            // FastAPI errors usually have 'detail' field
+            if (errorData.detail) {
+                errorMessage = errorData.detail;
+            } else if (errorData.message) {
+                errorMessage = errorData.message;
+            } else {
+                errorMessage = JSON.stringify(errorData);
+            }
+        } catch (e) {
+            errorMessage = `HTTP ${response.status}`;
+        }
+        throw new Error(errorMessage);
     }
     
     return response.json();
@@ -77,6 +90,7 @@ function apiLogout() {
     localStorage.removeItem('access_token');
     localStorage.removeItem('token_type');
     localStorage.removeItem('user');
+    localStorage.removeItem('current_user');
     window.location.href = 'login.html';
 }
 
@@ -116,13 +130,16 @@ async function apiDeleteCase(caseId) {
     return apiRequest(`/cases/${caseId}`, 'DELETE', null, true);
 }
 
+// =====================================================
+// IMAGE APIS
+// =====================================================
+
 async function apiGetCaseImages(caseId) {
     return apiRequest(`/cases/${caseId}/images`, 'GET', null, true);
 }
 
-
 // =====================================================
-// SYMPTOM APIS (ADD THIS)
+// SYMPTOM APIS
 // =====================================================
 
 async function apiSaveSymptoms(caseId, symptomData) {
@@ -140,12 +157,24 @@ async function apiUpdateSymptoms(caseId, symptomData) {
 async function apiDeleteSymptoms(caseId) {
     return apiRequest(`/cases/${caseId}/symptoms`, 'DELETE', null, true);
 }
+
+// =====================================================
+// ANALYSIS APIS (NEW)
+// =====================================================
+
+async function apiAnalyzeCase(caseId) {
+    return apiRequest(`/cases/${caseId}/analyze`, 'POST', null, true);
+}
+
 // =====================================================
 // HELPER FUNCTIONS
 // =====================================================
 
 function getCurrentUser() {
-    const userStr = localStorage.getItem('user');
+    let userStr = localStorage.getItem('user');
+    if (!userStr) {
+        userStr = localStorage.getItem('current_user');
+    }
     if (!userStr) return null;
     try {
         return JSON.parse(userStr);
@@ -165,4 +194,3 @@ function redirectToLogin() {
 function redirectToDashboard() {
     window.location.href = 'dashboard.html';
 }
-
