@@ -88,6 +88,32 @@ def forgot_password(email: str, db: Session = Depends(get_db)):
         "reset_token": reset_token  # Remove this in production
     }
 
+# =====================================================
+# DELETE PROFILE (FR-34)
+# =====================================================
+
+@router.delete("/profile")
+def delete_profile(
+    password: str,
+    db: Session = Depends(get_db),
+    current_user: HealthcareWorker = Depends(get_current_user)
+):
+    """
+    Permanently delete the user's account.
+    Requires password confirmation for security.
+    """
+    # Verify password
+    if not verify_password(password, current_user.password_hash):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Incorrect password"
+        )
+    
+    # Delete user from database (cascade will delete sessions, cases, etc.)
+    db.delete(current_user)
+    db.commit()
+    
+    return {"message": "Account deleted successfully"}
 
 @router.post("/reset-password")
 def reset_password(token: str, new_password: str, db: Session = Depends(get_db)):
