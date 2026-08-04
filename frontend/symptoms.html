@@ -76,6 +76,21 @@
       </div>
     </div>
 
+    <div id="imageQualityFeedback" class="hidden mt-3 space-y-2">
+    <div id="qualityBadge" class="text-xs font-bold px-3 py-2 rounded-lg">
+        <!-- Dynamic content -->
+    </div>
+    <ul id="qualityIssues" class="text-xs text-red-600 list-disc pl-5 space-y-1">
+        <!-- Dynamic issues -->
+    </ul>
+</div>
+
+<!-- Quality Feedback -->
+<div id="qualityFeedback" class="hidden mt-3 p-3 rounded-lg border">
+    <div id="qualityStatus" class="text-sm font-bold"></div>
+    <ul id="qualityIssues" class="text-xs list-disc pl-5 mt-1"></ul>
+</div>
+
     <!-- ==================== SECTION 1: DURATION & SEVERITY ==================== -->
     <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
       
@@ -564,6 +579,69 @@
             alert('Error submitting analysis: ' + error.message);
         }
     }
+
+    async function validateImageQuality(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch('http://127.0.0.1:8080/api/images/validate-quality', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+        
+        const result = await response.json();
+        return result;
+    } catch (error) {
+        console.error('Quality validation failed:', error);
+        return null;
+    }
+
+    async function checkImageQuality(file) {
+    const formData = new FormData();
+    formData.append('file', file);
+    
+    try {
+        const token = localStorage.getItem('access_token');
+        const response = await fetch('http://127.0.0.1:8080/api/images/validate-quality', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`
+            },
+            body: formData
+        });
+        
+        const result = await response.json();
+        displayQualityFeedback(result);
+        return result;
+    } catch (error) {
+        console.error('Quality check failed:', error);
+        return null;
+    }
+}
+
+function displayQualityFeedback(result) {
+    const feedback = document.getElementById('qualityFeedback');
+    const status = document.getElementById('qualityStatus');
+    const issues = document.getElementById('qualityIssues');
+    
+    feedback.classList.remove('hidden');
+    
+    if (result.is_valid) {
+        status.textContent = '✅ Image quality good!';
+        status.className = 'text-sm font-bold text-green-600';
+        issues.innerHTML = '';
+    } else {
+        status.textContent = '⚠️ Image quality issues detected:';
+        status.className = 'text-sm font-bold text-yellow-600';
+        issues.innerHTML = result.issues.map(i => `<li>${i}</li>`).join('');
+    }
+}
+}
   </script>
 </body>
 </html>
