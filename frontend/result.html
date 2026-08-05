@@ -3,10 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>StellarX - AI Analysis Results</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="api.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -18,315 +21,944 @@
           }
         }
       }
-    }
+    };
   </script>
 </head>
+
 <body class="bg-[#f4f7f9] min-h-screen text-slate-800 font-sans antialiased relative pb-24">
 
   <!-- ================= TOP NAVIGATION BAR ================= -->
   <nav class="bg-white border-b border-slate-100 px-6 md:px-16 py-4 flex items-center justify-between shadow-sm">
-    <div class="flex items-center space-x-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
+
+    <div
+      class="flex items-center space-x-2 cursor-pointer"
+      onclick="window.location.href='dashboard.html'"
+    >
       <i data-lucide="layers" class="w-6 h-6 text-[#114a72]"></i>
-      <span class="text-xl font-black tracking-tight text-[#114a72]">StellarX</span>
+
+      <span class="text-xl font-black tracking-tight text-[#114a72]">
+        StellarX
+      </span>
     </div>
+
     <div class="flex items-center">
-      <a href="dashboard.html" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-600 transition-colors" title="Back to Dashboard">
+      <a
+        href="dashboard.html"
+        class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-600 transition-colors"
+        title="Back to Dashboard"
+      >
         <i data-lucide="home" class="w-4 h-4"></i>
       </a>
     </div>
+
   </nav>
 
-  <!-- ================= MAIN WORKSPACE CONTENT ================= -->
+
+  <!-- ================= MAIN WORKSPACE ================= -->
   <main class="max-w-7xl mx-auto px-6 mt-10 space-y-6">
-    
+
     <div class="space-y-1">
-      <h1 class="text-3xl font-black text-slate-900 tracking-tight">AI Analysis Results</h1>
-      <p class="text-sm text-slate-500 font-medium">Diagnostic probabilities generated based on the uploaded clinical image and symptom information.</p>
+
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight">
+        AI Analysis Results
+      </h1>
+
+      <p class="text-sm text-slate-500 font-medium">
+        Symptom-based compatibility percentages generated from the entered
+        clinical information.
+      </p>
+
     </div>
+
 
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-      
-      <!-- LEFT COLUMN: PREDICTED CONDITIONS -->
+
+      <!-- ================= LEFT COLUMN ================= -->
       <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 lg:col-span-7 space-y-6">
+
         <div>
-          <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-wider">Predicted Conditions</h3>
+          <h3 class="text-[11px] font-black text-slate-400 uppercase tracking-wider">
+            Predicted Conditions
+          </h3>
         </div>
 
-        <div class="space-y-4">
-          <div class="bg-[#f0f7ff] border border-blue-100/70 rounded-xl p-4 flex items-center justify-between">
-            <div class="flex items-center space-x-4 flex-1">
-              <span class="text-2xl font-black text-blue-600/40">1</span>
-              <div class="flex-1 max-w-xs">
-                <span class="block text-sm font-black text-slate-900 tracking-tight">Tinea Infection</span>
-                <div class="w-full bg-blue-100 rounded-full h-2 mt-1 relative">
-                  <div class="bg-blue-600 h-2 rounded-full" style="width: 78%"></div>
-                </div>
-                <span class="text-[10px] font-bold text-blue-600 mt-1 block">78% Match</span>
-              </div>
-            </div>
-            <span class="px-3 py-1 text-[10px] font-black bg-emerald-100 text-emerald-800 rounded-lg">High</span>
+        <!-- Dynamic condition cards -->
+        <div id="predictedConditionsContainer" class="space-y-4">
+
+          <div class="text-sm font-semibold text-slate-400 py-6 text-center">
+            Loading analysis results...
           </div>
 
-          <div class="border border-slate-100 rounded-xl p-4 flex items-center justify-between">
-            <div class="flex items-center space-x-4 flex-1">
-              <span class="text-xl font-black text-slate-300">2</span>
-              <div class="flex-1 max-w-xs">
-                <span class="block text-xs font-bold text-slate-800">Psoriasis</span>
-                <div class="w-full bg-slate-100 rounded-full h-1.5 mt-1">
-                  <div class="bg-slate-400 h-1.5 rounded-full" style="width: 15%"></div>
-                </div>
-                <span class="text-[9px] font-bold text-slate-400 mt-0.5 block">15%</span>
-              </div>
-            </div>
-            <span class="px-3 py-1 text-[10px] font-black bg-amber-100 text-amber-800 rounded-lg">Medium</span>
-          </div>
-
-          <div class="border border-slate-100 rounded-xl p-4 flex items-center justify-between">
-            <div class="flex items-center space-x-4 flex-1">
-              <span class="text-xl font-black text-slate-300">3</span>
-              <div class="flex-1 max-w-xs">
-                <span class="block text-xs font-bold text-slate-800">Eczema</span>
-                <div class="w-full bg-slate-100 rounded-full h-1.5 mt-1">
-                  <div class="bg-slate-300 h-1.5 rounded-full" style="width: 7%"></div>
-                </div>
-                <span class="text-[9px] font-bold text-slate-400 mt-0.5 block">7%</span>
-              </div>
-            </div>
-            <span class="px-3 py-1 text-[10px] font-black bg-slate-100 text-slate-500 rounded-lg">Low</span>
-          </div>
         </div>
 
+
+        <!-- Confidence legend -->
         <div class="pt-4 border-t border-slate-100 space-y-2">
-          <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">Confidence Legend</span>
-          <div class="flex items-center space-x-6 text-[11px] font-bold text-slate-600">
-            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> High: &gt; 70%</div>
-            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> Medium: 40% - 70%</div>
-            <div class="flex items-center gap-1.5"><span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span> Low: &lt; 40%</div>
+
+          <span class="block text-[10px] font-black text-slate-400 uppercase tracking-wider">
+            Confidence Legend
+          </span>
+
+          <div class="flex flex-wrap items-center gap-5 text-[11px] font-bold text-slate-600">
+
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
+              High: ≥ 70%
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
+              Medium: 40% - 69%
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+              Low: &lt; 40%
+            </div>
+
           </div>
+
         </div>
+
       </div>
 
-      <!-- RIGHT COLUMN: INPUT SUMMARY -->
+
+      <!-- ================= RIGHT COLUMN ================= -->
       <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 lg:col-span-5 space-y-6">
+
         <div>
-          <h2 class="text-base font-black text-slate-900 tracking-tight">Input Summary</h2>
+          <h2 class="text-base font-black text-slate-900 tracking-tight">
+            Input Summary
+          </h2>
         </div>
 
-        <!-- 1. Uploaded Clinical Image Gallery -->
+
+        <!-- Uploaded images -->
         <div class="space-y-2">
-          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">1. Uploaded Clinical Images</span>
+
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            1. Uploaded Clinical Images
+          </span>
+
           <div class="border border-slate-200 rounded-xl bg-slate-50/50 p-2 min-h-[220px] flex items-center justify-center relative overflow-hidden">
-            <div id="imageGalleryContainer" class="grid grid-cols-2 md:grid-cols-3 gap-2 w-full hidden">
-              <!-- Images will be dynamically inserted here -->
+
+            <div
+              id="imageGalleryContainer"
+              class="grid grid-cols-2 md:grid-cols-3 gap-2 w-full hidden"
+            >
             </div>
-            <div id="resultImagePlaceholder" class="text-xs font-bold text-slate-400 tracking-wide block">
+
+            <div
+              id="resultImagePlaceholder"
+              class="text-xs font-bold text-slate-400 tracking-wide block"
+            >
               No images uploaded
             </div>
+
           </div>
+
         </div>
 
-        <!-- 2. Selected Symptoms -->
+
+        <!-- Selected symptoms -->
         <div class="space-y-2">
-          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">2. Selected Symptoms</span>
+
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            2. Selected Symptoms
+          </span>
+
           <div id="symptomBadgeCloud" class="flex flex-wrap gap-2 pt-1">
-            <span class="text-xs text-slate-400">Loading symptoms...</span>
+
+            <span class="text-xs text-slate-400">
+              Loading symptoms...
+            </span>
+
           </div>
+
         </div>
+
       </div>
 
     </div>
 
-    <!-- ================= BOTTOM NAV ROW ================= -->
+
+    <!-- ================= BOTTOM BUTTONS ================= -->
     <div class="flex items-center justify-end gap-3 pt-6">
-      <button onclick="window.location.href='history.html'" class="px-6 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-sm">
+
+      <button
+        onclick="window.location.href='history.html'"
+        class="px-6 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-sm"
+      >
         View History
       </button>
-      <button onclick="clearAndNavigateToSymptoms()" class="px-6 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-[#114a72] text-xs font-bold rounded-xl transition-all shadow-sm">
+
+      <button
+        onclick="clearAndNavigateToSymptoms()"
+        class="px-6 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-[#114a72] text-xs font-bold rounded-xl transition-all shadow-sm"
+      >
         New Case
       </button>
-      <button onclick="window.location.href='dashboard.html'" class="px-6 py-2.5 bg-[#114a72] hover:bg-[#0c3d5e] text-white text-xs font-bold rounded-xl transition-all shadow-sm">
+
+      <button
+        onclick="window.location.href='dashboard.html'"
+        class="px-6 py-2.5 bg-[#114a72] hover:bg-[#0c3d5e] text-white text-xs font-bold rounded-xl transition-all shadow-sm"
+      >
         Save Case
       </button>
+
     </div>
 
   </main>
 
+
   <!-- ================= JAVASCRIPT ================= -->
   <script>
-    window.onload = async function() {
+
+    const BACKEND_URL = 'http://127.0.0.1:8081';
+
+
+    // =====================================================
+    // PAGE LOAD
+    // =====================================================
+
+    window.addEventListener('DOMContentLoaded', async function () {
+
+      // Prevent page crash if Lucide CDN is unavailable
+      if (typeof lucide !== 'undefined') {
         lucide.createIcons();
-        
-        // ✅ Get case ID from URL parameter or localStorage
-        const urlParams = new URLSearchParams(window.location.search);
-        const caseIdFromUrl = urlParams.get('case_id');
-        let caseId = caseIdFromUrl || localStorage.getItem('current_case_id');
-        
-        if (!caseId) {
-            // ✅ No case ID found – redirect to symptoms
-            alert('No case found. Please start a new case.');
-            window.location.href = 'symptoms.html';
-            return;
-        }
-        
-        // ✅ Store the case ID for use in other functions
-        localStorage.setItem('current_case_id', caseId);
-        console.log('✅ Loading result for case:', caseId);
-        
-        await loadAllImagesFromBackend(caseId);
-        await loadSymptomsFromBackend(caseId);
-    }
+      }
 
-    // ============================================
-    // 1. LOAD IMAGES FROM BACKEND
-    // ============================================
-    async function loadAllImagesFromBackend(caseId) {
-        const placeholder = document.getElementById('resultImagePlaceholder');
-        const gallery = document.getElementById('imageGalleryContainer');
-        
-        gallery.innerHTML = '';
-        gallery.classList.add('hidden');
-        
-        if (!caseId) {
-            tryLoadFromLocalStorage();
-            return;
-        }
-        
-        try {
-            const response = await apiGetCaseImages(caseId);
-            const images = response.images || [];
-            
-            if (images.length === 0) {
-                tryLoadFromLocalStorage();
-                return;
-            }
-            
-            placeholder.classList.add('hidden');
-            gallery.classList.remove('hidden');
-            
-            images.forEach((img, index) => {
-                const imageUrl = `http://127.0.0.1:8080/uploads/${caseId}/${img.s3_key.split('/').pop()}`;
-                
-                const imgElement = document.createElement('img');
-                imgElement.src = imageUrl;
-                imgElement.alt = `Image ${index + 1}`;
-                imgElement.className = 'w-full h-32 object-cover rounded-lg border border-slate-200 shadow-sm';
-                imgElement.onerror = function() {
-                    this.style.display = 'none';
-                    const fallback = document.createElement('div');
-                    fallback.className = 'w-full h-32 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-xs font-bold';
-                    fallback.innerText = `Image ${index + 1}`;
-                    this.parentNode.replaceChild(fallback, this);
-                };
-                
-                gallery.appendChild(imgElement);
-            });
-            
-            if (images.length > 3) {
-                const badge = document.createElement('div');
-                badge.className = 'col-span-full text-center text-xs font-bold text-slate-500 bg-slate-100 py-1 rounded-lg';
-                badge.innerText = `+ ${images.length - 3} more images`;
-                gallery.appendChild(badge);
-            }
-            
-        } catch (error) {
-            console.error('Failed to load images from backend:', error);
-            tryLoadFromLocalStorage();
-        }
-    }
+      const urlParams = new URLSearchParams(window.location.search);
 
-    // ============================================
-    // 2. FALLBACK: LOAD FROM LOCALSTORAGE
-    // ============================================
-    function tryLoadFromLocalStorage() {
-        const placeholder = document.getElementById('resultImagePlaceholder');
-        const gallery = document.getElementById('imageGalleryContainer');
-        
-        const savedImages = JSON.parse(localStorage.getItem('stellarX_uploaded_images') || '[]');
-        
-        if (savedImages.length > 0) {
-            placeholder.classList.add('hidden');
-            gallery.classList.remove('hidden');
-            gallery.innerHTML = '';
-            savedImages.forEach((img, index) => {
-                const imgElement = document.createElement('img');
-                imgElement.src = img.data;
-                imgElement.alt = `Image ${index + 1}`;
-                imgElement.className = 'w-full h-32 object-cover rounded-lg border border-slate-200 shadow-sm';
-                gallery.appendChild(imgElement);
-            });
-        } else {
-            placeholder.classList.remove('hidden');
-            gallery.classList.add('hidden');
-        }
-    }
+      const caseIdFromUrl = urlParams.get('case_id');
 
-    // ============================================
-    // 3. LOAD SYMPTOMS FROM BACKEND
-    // ============================================
-    async function loadSymptomsFromBackend(caseId) {
-        const badgeCloud = document.getElementById('symptomBadgeCloud');
-        
-        if (!caseId || !badgeCloud) return;
-        
-        try {
-            const symptomData = await apiGetSymptoms(caseId);
-            
-            // Build symptom list
-            const symptomList = [];
-            if (symptomData.redness) symptomList.push('Redness');
-            if (symptomData.scaling) symptomList.push('Scaling');
-            if (symptomData.ring_shaped) symptomList.push('Ring-shaped lesion');
-            if (symptomData.itching) symptomList.push('Itching');
-            if (symptomData.pain) symptomList.push('Pain / Tenderness');
-            if (symptomData.lesion_locations && symptomData.lesion_locations.length > 0) {
-                symptomList.push(...symptomData.lesion_locations);
-            }
-            
-            badgeCloud.innerHTML = symptomList.length > 0 
-                ? symptomList.map(s => 
-                    `<span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">${s}</span>`
-                  ).join('')
-                : '<span class="text-xs text-slate-400">No symptoms recorded</span>';
-            
-        } catch (error) {
-            console.warn('Failed to load symptoms from backend:', error);
-            // Fallback to localStorage
-            const symptomsData = localStorage.getItem('current_symptoms');
-            if (symptomsData) {
-                try {
-                    const symptoms = JSON.parse(symptomsData);
-                    const symptomList = [];
-                    if (symptoms.redness) symptomList.push('Redness');
-                    if (symptoms.scaling) symptomList.push('Scaling');
-                    if (symptoms.ring) symptomList.push('Ring-shaped lesion');
-                    if (symptoms.itching) symptomList.push('Itching');
-                    if (symptoms.pain) symptomList.push('Pain / Tenderness');
-                    if (symptoms.lesionLocations) symptomList.push(...symptoms.lesionLocations);
-                    
-                    badgeCloud.innerHTML = symptomList.length > 0 
-                        ? symptomList.map(s => 
-                            `<span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">${s}</span>`
-                          ).join('')
-                        : '<span class="text-xs text-slate-400">No symptoms recorded</span>';
-                } catch (e) {
-                    badgeCloud.innerHTML = '<span class="text-xs text-slate-400">No symptoms recorded</span>';
-                }
-            } else {
-                badgeCloud.innerHTML = '<span class="text-xs text-slate-400">No symptoms recorded</span>';
-            }
-        }
-    }
+      const caseId =
+        caseIdFromUrl ||
+        localStorage.getItem('current_case_id');
 
-    // ============================================
-    // 4. CLEAR AND NAVIGATE TO SYMPTOMS
-    // ============================================
-    function clearAndNavigateToSymptoms() {
-        localStorage.removeItem('stellarX_temp_uploaded_image');
-        localStorage.removeItem('stellarX_uploaded_images');
-        localStorage.removeItem('current_case_id');
-        localStorage.removeItem('current_symptoms');
+      if (!caseId) {
+        alert('No case found. Please start a new case.');
         window.location.href = 'symptoms.html';
+        return;
+      }
+
+      localStorage.setItem('current_case_id', caseId);
+
+      console.log('Loading result for case:', caseId);
+
+      renderAnalysisResults();
+
+      await Promise.allSettled([
+        loadAllImagesFromBackend(caseId),
+        loadSymptomsFromBackend(caseId)
+      ]);
+
+    });
+
+
+    // =====================================================
+    // 1. RENDER WEIGHTED SYMPTOM RESULTS
+    // =====================================================
+
+    function renderAnalysisResults() {
+
+      const container = document.getElementById(
+        'predictedConditionsContainer'
+      );
+
+      if (!container) {
+        console.error(
+          'predictedConditionsContainer was not found'
+        );
+        return;
+      }
+
+      const savedResult = localStorage.getItem(
+        'current_analysis_result'
+      );
+
+      if (!savedResult) {
+        container.innerHTML = `
+          <div class="border border-red-100 bg-red-50 rounded-xl p-5">
+            <p class="text-sm font-bold text-red-600">
+              Analysis result was not found.
+            </p>
+
+            <p class="text-xs text-red-500 mt-1">
+              Please return to the symptoms page and run the analysis again.
+            </p>
+          </div>
+        `;
+
+        return;
+      }
+
+      let analysisResult;
+
+      try {
+        analysisResult = JSON.parse(savedResult);
+      } catch (error) {
+        console.error('Invalid analysis result JSON:', error);
+
+        container.innerHTML = `
+          <div class="border border-red-100 bg-red-50 rounded-xl p-5">
+            <p class="text-sm font-bold text-red-600">
+              Invalid analysis result.
+            </p>
+          </div>
+        `;
+
+        return;
+      }
+
+      console.log(
+        'Weighted symptom analysis result:',
+        analysisResult
+      );
+
+      let rankedConditions =
+        analysisResult.ranked_conditions || [];
+
+      /*
+       Supports both backend formats:
+
+       New:
+       {
+         condition: "Corporis",
+         percentage: 65
+       }
+
+       Old:
+       {
+         condition: "Corporis",
+         probability: 0.65
+       }
+      */
+
+      rankedConditions = rankedConditions.map(item => {
+
+        let percentage;
+
+        if (item.percentage !== undefined) {
+          percentage = Number(item.percentage);
+        } else if (item.probability !== undefined) {
+          percentage = Number(item.probability) * 100;
+        } else {
+          percentage = 0;
+        }
+
+        return {
+          condition: item.condition || 'Unknown',
+          percentage: Math.max(
+            0,
+            Math.min(100, Math.round(percentage))
+          )
+        };
+
+      });
+
+      rankedConditions.sort(
+        (a, b) => b.percentage - a.percentage
+      );
+
+      rankedConditions = rankedConditions.slice(0, 3);
+
+      /*
+       Fallback for an older backend response that only has:
+       primary_condition and symptom_confidence
+      */
+
+      if (
+        rankedConditions.length === 0 &&
+        analysisResult.primary_condition
+      ) {
+
+        const confidence =
+          Number(
+            analysisResult.symptom_confidence || 0
+          );
+
+        rankedConditions = [
+          {
+            condition: analysisResult.primary_condition,
+            percentage: Math.round(confidence * 100)
+          }
+        ];
+
+      }
+
+      if (rankedConditions.length === 0) {
+
+        container.innerHTML = `
+          <div class="border border-amber-100 bg-amber-50 rounded-xl p-5">
+            <p class="text-sm font-bold text-amber-700">
+              No ranked conditions were returned.
+            </p>
+          </div>
+        `;
+
+        return;
+      }
+
+      container.innerHTML = rankedConditions
+        .map((item, index) => createConditionCard(
+          item,
+          index
+        ))
+        .join('');
+
     }
+
+
+    // =====================================================
+    // 2. CREATE ONE CONDITION CARD
+    // =====================================================
+
+    function createConditionCard(item, index) {
+
+      const percentage = Number(
+        item.percentage || 0
+      );
+
+      let level = 'Low';
+
+      let badgeClass =
+        'bg-slate-100 text-slate-500';
+
+      if (percentage >= 70) {
+
+        level = 'High';
+
+        badgeClass =
+          'bg-emerald-100 text-emerald-800';
+
+      } else if (percentage >= 40) {
+
+        level = 'Medium';
+
+        badgeClass =
+          'bg-amber-100 text-amber-800';
+
+      }
+
+      const isFirst = index === 0;
+
+      const cardClass = isFirst
+        ? 'bg-[#f0f7ff] border-blue-100/70'
+        : 'bg-white border-slate-100';
+
+      const rankClass = isFirst
+        ? 'text-2xl text-blue-600/40'
+        : 'text-xl text-slate-300';
+
+      const nameClass = isFirst
+        ? 'text-sm font-black text-slate-900'
+        : 'text-xs font-bold text-slate-800';
+
+      const progressBackground = isFirst
+        ? 'bg-blue-100 h-2'
+        : 'bg-slate-100 h-1.5';
+
+      const progressColor = isFirst
+        ? 'bg-blue-600 h-2'
+        : 'bg-slate-400 h-1.5';
+
+      const percentageClass = isFirst
+        ? 'text-[10px] text-blue-600 mt-1'
+        : 'text-[9px] text-slate-400 mt-0.5';
+
+      const percentageLabel = isFirst
+        ? `${percentage}% Match`
+        : `${percentage}%`;
+
+      return `
+        <div class="${cardClass} border rounded-xl p-4 flex items-center justify-between">
+
+          <div class="flex items-center space-x-4 flex-1">
+
+            <span class="${rankClass} font-black">
+              ${index + 1}
+            </span>
+
+            <div class="flex-1 max-w-xs">
+
+              <span class="block ${nameClass} tracking-tight">
+                ${escapeHtml(getDisplayConditionName(item.condition))}
+              </span>
+
+              <div class="w-full ${progressBackground} rounded-full mt-1">
+
+                <div
+                  class="${progressColor} rounded-full transition-all duration-500"
+                  style="width: ${percentage}%"
+                >
+                </div>
+
+              </div>
+
+              <span class="${percentageClass} font-bold block">
+                ${percentageLabel}
+              </span>
+
+            </div>
+
+          </div>
+
+          <span class="px-3 py-1 text-[10px] font-black ${badgeClass} rounded-lg">
+            ${level}
+          </span>
+
+        </div>
+      `;
+
+    }
+
+
+    // =====================================================
+    // 3. LOAD IMAGES FROM BACKEND
+    // =====================================================
+
+    async function loadAllImagesFromBackend(caseId) {
+
+      const placeholder = document.getElementById(
+        'resultImagePlaceholder'
+      );
+
+      const gallery = document.getElementById(
+        'imageGalleryContainer'
+      );
+
+      gallery.innerHTML = '';
+
+      gallery.classList.add('hidden');
+
+      placeholder.classList.remove('hidden');
+
+      if (!caseId) {
+        tryLoadFromLocalStorage();
+        return;
+      }
+
+      try {
+
+        const response = await apiGetCaseImages(caseId);
+
+        const images = response.images || [];
+
+        if (images.length === 0) {
+          tryLoadFromLocalStorage();
+          return;
+        }
+
+        placeholder.classList.add('hidden');
+
+        gallery.classList.remove('hidden');
+
+        images.forEach((img, index) => {
+
+          const fileName =
+            img.s3_key
+              ? img.s3_key.split('/').pop()
+              : '';
+
+          const imageUrl =
+            `${BACKEND_URL}/uploads/${caseId}/${fileName}`;
+
+          const imageElement =
+            document.createElement('img');
+
+          imageElement.src = imageUrl;
+
+          imageElement.alt =
+            `Clinical image ${index + 1}`;
+
+          imageElement.className =
+            'w-full h-32 object-cover rounded-lg border border-slate-200 shadow-sm';
+
+          imageElement.onerror = function () {
+
+            const fallback =
+              document.createElement('div');
+
+            fallback.className =
+              'w-full h-32 bg-slate-100 rounded-lg flex items-center justify-center text-slate-400 text-xs font-bold';
+
+            fallback.innerText =
+              `Image ${index + 1}`;
+
+            this.replaceWith(fallback);
+
+          };
+
+          gallery.appendChild(imageElement);
+
+        });
+
+      } catch (error) {
+
+        console.warn(
+          'Failed to load images from backend:',
+          error
+        );
+
+        tryLoadFromLocalStorage();
+
+      }
+
+    }
+
+
+    // =====================================================
+    // 4. IMAGE FALLBACK FROM LOCAL STORAGE
+    // =====================================================
+
+    function tryLoadFromLocalStorage() {
+
+      const placeholder = document.getElementById(
+        'resultImagePlaceholder'
+      );
+
+      const gallery = document.getElementById(
+        'imageGalleryContainer'
+      );
+
+      let savedImages = [];
+
+      try {
+
+        savedImages = JSON.parse(
+          localStorage.getItem(
+            'stellarX_uploaded_images'
+          ) || '[]'
+        );
+
+      } catch (error) {
+
+        savedImages = [];
+
+      }
+
+      if (savedImages.length === 0) {
+
+        placeholder.classList.remove('hidden');
+
+        gallery.classList.add('hidden');
+
+        return;
+
+      }
+
+      placeholder.classList.add('hidden');
+
+      gallery.classList.remove('hidden');
+
+      gallery.innerHTML = '';
+
+      savedImages.forEach((img, index) => {
+
+        const imageElement =
+          document.createElement('img');
+
+        imageElement.src = img.data;
+
+        imageElement.alt =
+          `Clinical image ${index + 1}`;
+
+        imageElement.className =
+          'w-full h-32 object-cover rounded-lg border border-slate-200 shadow-sm';
+
+        gallery.appendChild(imageElement);
+
+      });
+
+    }
+
+
+    // =====================================================
+    // 5. LOAD SYMPTOMS FROM BACKEND
+    // =====================================================
+
+    async function loadSymptomsFromBackend(caseId) {
+
+      const badgeCloud = document.getElementById(
+        'symptomBadgeCloud'
+      );
+
+      if (!caseId || !badgeCloud) {
+        return;
+      }
+
+      try {
+
+        const symptomData =
+          await apiGetSymptoms(caseId);
+
+        const symptomList =
+          createSymptomList(symptomData);
+
+        renderSymptomBadges(
+          badgeCloud,
+          symptomList
+        );
+
+      } catch (error) {
+
+        console.warn(
+          'Failed to load symptoms from backend:',
+          error
+        );
+
+        loadSymptomsFromLocalStorage(
+          badgeCloud
+        );
+
+      }
+
+    }
+
+
+    // =====================================================
+    // 6. CREATE SYMPTOM LIST
+    // =====================================================
+
+    function createSymptomList(symptomData) {
+
+      const symptomList = [];
+
+      if (symptomData.redness) {
+        symptomList.push('Redness');
+      }
+
+      if (symptomData.scaling) {
+        symptomList.push('Scaling');
+      }
+
+      if (symptomData.ring_shaped) {
+        symptomList.push('Ring-shaped lesion');
+      }
+
+      if (symptomData.itching) {
+        symptomList.push('Itching');
+      }
+
+      if (symptomData.pain) {
+        symptomList.push('Pain / Tenderness');
+      }
+
+      if (symptomData.central_clearing) {
+        symptomList.push('Central clearing');
+      }
+
+      if (symptomData.nail_changes) {
+        symptomList.push('Nail changes');
+      }
+
+      if (
+        Array.isArray(
+          symptomData.lesion_locations
+        )
+      ) {
+
+        symptomList.push(
+          ...symptomData.lesion_locations
+        );
+
+      } else if (
+        typeof symptomData.lesion_locations ===
+        'string'
+      ) {
+
+        symptomList.push(
+          ...symptomData.lesion_locations
+            .split(',')
+            .map(item => item.trim())
+            .filter(Boolean)
+        );
+
+      }
+
+      return symptomList;
+
+    }
+
+
+    // =====================================================
+    // 7. RENDER SYMPTOM BADGES
+    // =====================================================
+
+    function renderSymptomBadges(
+      badgeCloud,
+      symptomList
+    ) {
+
+      if (symptomList.length === 0) {
+
+        badgeCloud.innerHTML = `
+          <span class="text-xs text-slate-400">
+            No symptoms recorded
+          </span>
+        `;
+
+        return;
+
+      }
+
+      badgeCloud.innerHTML = symptomList
+        .map(symptom => `
+          <span class="px-3 py-1.5 text-xs font-bold bg-sky-50 text-[#114a72] border border-sky-100/80 rounded-full">
+            ${escapeHtml(symptom)}
+          </span>
+        `)
+        .join('');
+
+    }
+
+
+    // =====================================================
+    // 8. SYMPTOM FALLBACK FROM LOCAL STORAGE
+    // =====================================================
+
+    function loadSymptomsFromLocalStorage(
+      badgeCloud
+    ) {
+
+      const savedSymptoms =
+        localStorage.getItem(
+          'current_symptoms'
+        );
+
+      if (!savedSymptoms) {
+
+        renderSymptomBadges(
+          badgeCloud,
+          []
+        );
+
+        return;
+
+      }
+
+      try {
+
+        const symptomData =
+          JSON.parse(savedSymptoms);
+
+        const symptomList = [];
+
+        if (symptomData.redness) {
+          symptomList.push('Redness');
+        }
+
+        if (symptomData.scaling) {
+          symptomList.push('Scaling');
+        }
+
+        if (
+          symptomData.ring ||
+          symptomData.ring_shaped
+        ) {
+          symptomList.push(
+            'Ring-shaped lesion'
+          );
+        }
+
+        if (symptomData.itching) {
+          symptomList.push('Itching');
+        }
+
+        if (symptomData.pain) {
+          symptomList.push(
+            'Pain / Tenderness'
+          );
+        }
+
+        const locations =
+          symptomData.lesionLocations ||
+          symptomData.lesion_locations ||
+          [];
+
+        if (Array.isArray(locations)) {
+          symptomList.push(...locations);
+        }
+
+        renderSymptomBadges(
+          badgeCloud,
+          symptomList
+        );
+
+      } catch (error) {
+
+        renderSymptomBadges(
+          badgeCloud,
+          []
+        );
+
+      }
+
+    }
+
+
+    // =====================================================
+    // 9. NEW CASE
+    // =====================================================
+
+    function clearAndNavigateToSymptoms() {
+
+      localStorage.removeItem(
+        'stellarX_temp_uploaded_image'
+      );
+
+      localStorage.removeItem(
+        'stellarX_uploaded_images'
+      );
+
+      localStorage.removeItem(
+        'current_case_id'
+      );
+
+      localStorage.removeItem(
+        'current_symptoms'
+      );
+
+      localStorage.removeItem(
+        'current_analysis_result'
+      );
+
+      window.location.href =
+        'symptoms.html';
+
+    }
+
+
+    // =====================================================
+    // 10. DISPLAY CONDITION NAME MAPPING
+    // =====================================================
+
+    function getDisplayConditionName(condition) {
+      if (condition === 'Psoriasis') {
+        return 'Leishmaniasis';
+      }
+
+      return condition;
+    }
+
+
+    // =====================================================
+    // 11. BASIC HTML ESCAPING
+    // =====================================================
+
+    function escapeHtml(value) {
+
+      return String(value)
+        .replaceAll('&', '&amp;')
+        .replaceAll('<', '&lt;')
+        .replaceAll('>', '&gt;')
+        .replaceAll('"', '&quot;')
+        .replaceAll("'", '&#039;');
+
+    }
+
   </script>
+
 </body>
 </html>
