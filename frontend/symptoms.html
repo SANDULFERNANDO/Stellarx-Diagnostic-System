@@ -2,11 +2,18 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
   <title>StellarX - Enter Observed Symptoms</title>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
   <script src="api.js"></script>
+
   <script>
     tailwind.config = {
       theme: {
@@ -18,630 +25,1147 @@
           }
         }
       }
-    }
+    };
   </script>
 </head>
+
 <body class="bg-[#f4f7f9] min-h-screen text-slate-800 font-sans antialiased relative pb-24">
 
-  <!-- ================= TOP NAVIGATION BAR ================= -->
+  <!-- Navigation -->
   <nav class="bg-white border-b border-slate-100 px-6 md:px-16 py-4 flex items-center justify-between shadow-sm">
-    <div class="flex items-center space-x-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
-      <i data-lucide="layers" class="w-6 h-6 text-[#114a72]"></i>
-      <span class="text-xl font-black tracking-tight text-[#114a72]">StellarX</span>
+
+    <div
+      class="flex items-center space-x-2 cursor-pointer"
+      onclick="window.location.href='dashboard.html'"
+    >
+      <i
+        data-lucide="layers"
+        class="w-6 h-6 text-[#114a72]"
+      ></i>
+
+      <span class="text-xl font-black tracking-tight text-[#114a72]">
+        StellarX
+      </span>
     </div>
-    <div class="flex items-center">
-      <a href="profile.html" class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-600 transition-colors">
-        <i data-lucide="user" class="w-4 h-4"></i>
-      </a>
-    </div>
+
+    <a
+      href="profile.html"
+      class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-600"
+    >
+      <i
+        data-lucide="user"
+        class="w-4 h-4"
+      ></i>
+    </a>
+
   </nav>
 
-  <!-- ================= MAIN WORKSPACE CONTENT ================= -->
   <main class="max-w-5xl mx-auto px-6 mt-10 space-y-6">
-    
-    <!-- Title Section -->
+
+    <!-- Title -->
     <div class="space-y-1">
-      <h1 class="text-3xl font-black text-slate-900 tracking-tight">Enter Observed Symptoms</h1>
-      <p class="text-sm text-slate-500 font-medium">Select the symptoms observed in the patient's skin lesion to assist the AI diagnostic model.</p>
+
+      <h1 class="text-3xl font-black text-slate-900 tracking-tight">
+        Enter Observed Symptoms
+      </h1>
+
+      <p class="text-sm text-slate-500 font-medium">
+        Enter the clinical findings to generate weighted symptom compatibility percentages.
+      </p>
+
     </div>
 
-    <!-- ==================== IMAGE UPLOAD ZONE ==================== -->
+    <!-- Image Upload -->
     <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
+
       <div class="flex items-center justify-between">
+
         <h3 class="text-sm font-black text-slate-800 flex items-center gap-2">
-          <i data-lucide="image" class="w-4 h-4 text-[#114a72]"></i> Upload Clinical Images
+
+          <i
+            data-lucide="image"
+            class="w-4 h-4 text-[#114a72]"
+          ></i>
+
+          Upload Clinical Images
         </h3>
-        <span id="imageCountDisplay" class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
+
+        <span
+          id="imageCountDisplay"
+          class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full"
+        >
           0 / 5
+        </span>
+
+      </div>
+
+      <div class="border-2 border-dashed border-slate-200 hover:border-[#3b93d7] rounded-xl bg-slate-50/50 p-6 text-center cursor-pointer transition-colors relative group">
+
+        <input
+          type="file"
+          id="clinicalImageInput"
+          class="absolute inset-0 opacity-0 cursor-pointer"
+          accept="image/jpeg,image/png,image/webp"
+          multiple
+          onchange="handleImagePreview(this)"
+        >
+
+        <div
+          id="uploadPromptZone"
+          class="space-y-2"
+        >
+
+          <div class="w-10 h-10 bg-sky-50 text-[#114a72] rounded-full flex items-center justify-center mx-auto">
+
+            <i
+              data-lucide="upload-cloud"
+              class="w-5 h-5"
+            ></i>
+
+          </div>
+
+          <p class="text-xs font-bold text-slate-700">
+            Drag and drop patient lesion images here, or
+            <span class="text-[#3b93d7]">
+              browse
+            </span>
+          </p>
+
+          <p class="text-[10px] text-slate-400 font-medium">
+            Supports JPG, PNG and WebP • Maximum 5 images
+          </p>
+
+        </div>
+
+        <div
+          id="imagePreviewContainer"
+          class="hidden flex flex-wrap gap-3 justify-center mt-3"
+        ></div>
+
+      </div>
+
+      <div
+        id="imageValidationMessage"
+        class="hidden text-xs font-bold text-red-500 flex items-center gap-2"
+      >
+        <i
+          data-lucide="alert-circle"
+          class="w-4 h-4"
+        ></i>
+
+        <span id="imageValidationText">
+          Maximum 5 images allowed.
         </span>
       </div>
 
-      <!-- Image Upload Area -->
-      <div class="border-2 border-dashed border-slate-200 hover:border-[#3b93d7] rounded-xl bg-slate-50/50 p-6 text-center cursor-pointer transition-colors relative group">
-        <input type="file" id="clinicalImageInput" class="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" multiple onchange="handleImagePreview(this)">
-        <div class="space-y-2" id="uploadPromptZone">
-          <div class="w-10 h-10 bg-sky-50 text-[#114a72] rounded-full flex items-center justify-center mx-auto group-hover:scale-105 transition-transform">
-            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
-          </div>
-          <p class="text-xs font-bold text-slate-700">Drag and drop patient lesion images here, or <span class="text-[#3b93d7] hover:underline">browse</span></p>
-          <p class="text-[10px] text-slate-400 font-medium">Supports JPG, PNG formats • Min: 1 • Max: 5 images</p>
-        </div>
-        <div id="imagePreviewContainer" class="hidden flex flex-wrap gap-3 justify-center mt-3"></div>
-      </div>
+      <p class="text-[10px] text-slate-400">
+        The current weighted symptom model does not analyse the image. Images are retained for later image-model integration.
+      </p>
 
-      <!-- Validation Messages -->
-      <div id="imageValidationMessage" class="hidden text-xs font-bold text-red-500 flex items-center gap-2">
-        <i data-lucide="alert-circle" class="w-4 h-4"></i>
-        <span id="imageValidationText">Please upload at least 1 image before submitting.</span>
-      </div>
     </div>
 
-    <div id="imageQualityFeedback" class="hidden mt-3 space-y-2">
-    <div id="qualityBadge" class="text-xs font-bold px-3 py-2 rounded-lg">
-        <!-- Dynamic content -->
-    </div>
-    <ul id="qualityIssues" class="text-xs text-red-600 list-disc pl-5 space-y-1">
-        <!-- Dynamic issues -->
-    </ul>
-</div>
-
-<!-- Quality Feedback -->
-<div id="qualityFeedback" class="hidden mt-3 p-3 rounded-lg border">
-    <div id="qualityStatus" class="text-sm font-bold"></div>
-    <ul id="qualityIssues" class="text-xs list-disc pl-5 mt-1"></ul>
-</div>
-
-    <!-- ==================== SECTION 1: DURATION & SEVERITY ==================== -->
+    <!-- Duration and Severity -->
     <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-      
-      <div class="space-y-2">
-        <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-          <i data-lucide="clock" class="w-4 h-4 text-[#114a72]"></i> Duration & Severity
-        </h3>
-        <div>
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Duration of Symptoms</label>
-          <div class="flex gap-3 mt-1">
-            <input type="number" id="durationValue" min="1" value="1" class="w-1/3 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72]">
-            <select id="durationUnit" class="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
-              <option value="days">Days</option>
-              <option value="weeks" selected>Weeks</option>
-              <option value="months">Months</option>
-            </select>
-          </div>
-        </div>
-      </div>
 
       <div class="space-y-2">
-        <div>
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Itch Severity</label>
-          <div class="flex items-center gap-4 mt-1">
-            <span class="text-[10px] font-bold text-slate-400">Mild</span>
-            <input type="range" id="itchSeverity" min="1" max="10" value="5" oninput="document.getElementById('itchDisplay').innerText = this.value" class="flex-1 accent-[#114a72]">
-            <span class="text-[10px] font-bold text-slate-400">Severe</span>
-            <span id="itchDisplay" class="text-sm font-black text-[#114a72] w-6 text-center">5</span>
-          </div>
-        </div>
-      </div>
 
-    </div>
-
-    <!-- ==================== SECTION 2: VISUAL APPEARANCE & SENSATION ==================== -->
-    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-      
-      <div class="space-y-4">
         <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-          <i data-lucide="eye" class="w-4 h-4 text-[#114a72]"></i> Visual Appearance
+
+          <i
+            data-lucide="clock"
+            class="w-4 h-4 text-[#114a72]"
+          ></i>
+
+          Duration & Severity
         </h3>
-        <div class="space-y-3">
-          <label class="flex items-center gap-3 cursor-pointer select-none text-xs font-bold text-slate-700">
-            <input type="checkbox" id="sympRedness" class="w-4 h-4 rounded text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-            <span>Redness</span>
-          </label>
-          <label class="flex items-center gap-3 cursor-pointer select-none text-xs font-bold text-slate-700">
-            <input type="checkbox" id="sympScaling" class="w-4 h-4 rounded text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-            <span>Scaling</span>
-          </label>
-          <label class="flex items-center gap-3 cursor-pointer select-none text-xs font-bold text-slate-700">
-            <input type="checkbox" id="sympRing" class="w-4 h-4 rounded text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-            <span>Ring-shaped lesion</span>
-          </label>
-        </div>
-      </div>
 
-      <div class="space-y-4">
-        <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-          <i data-lucide="smile" class="w-4 h-4 text-[#114a72]"></i> Sensation
-        </h3>
-        <div class="space-y-3">
-          <label class="flex items-center gap-3 cursor-pointer select-none text-xs font-bold text-slate-700">
-            <input type="checkbox" id="sympItching" class="w-4 h-4 rounded text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-            <span>Itching</span>
-          </label>
-          <label class="flex items-center gap-3 cursor-pointer select-none text-xs font-bold text-slate-700">
-            <input type="checkbox" id="sympPain" class="w-4 h-4 rounded text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-            <span>Pain / Tenderness</span>
-          </label>
-        </div>
-      </div>
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          Duration of Symptoms
+        </label>
 
-    </div>
+        <div class="flex gap-3">
 
-    <!-- ==================== SECTION 3: LESION CHARACTERISTICS ==================== -->
-    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
-      <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-        <i data-lucide="user" class="w-4 h-4 text-[#114a72]"></i> Lesion Characteristics
-      </h3>
-      
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-        
-        <div class="space-y-2">
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Size (cm)</label>
-          <input type="number" id="lesionSizeCm" min="0.1" max="20" step="0.5" value="2.5" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
-        </div>
+          <input
+            type="number"
+            id="durationValue"
+            min="1"
+            value="1"
+            class="w-1/3 px-3 py-2 border border-slate-200 rounded-xl text-sm"
+          >
 
-        <div class="space-y-2">
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Border</label>
-          <select id="lesionBorder" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
-            <option value="well_defined">Well-defined, raised</option>
-            <option value="ill_defined">Ill-defined, diffuse</option>
-            <option value="irregular">Irregular</option>
+          <select
+            id="durationUnit"
+            class="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
+          >
+            <option value="days">Days</option>
+            <option value="weeks" selected>Weeks</option>
+            <option value="months">Months</option>
           </select>
+
+        </div>
+
+      </div>
+
+      <div class="space-y-2">
+
+        <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+          Itch Severity
+        </label>
+
+        <div class="flex items-center gap-4 mt-1">
+
+          <span class="text-[10px] font-bold text-slate-400">
+            Mild
+          </span>
+
+          <input
+            type="range"
+            id="itchSeverity"
+            min="1"
+            max="10"
+            value="5"
+            class="flex-1 accent-[#114a72]"
+            oninput="document.getElementById('itchDisplay').textContent = this.value"
+          >
+
+          <span class="text-[10px] font-bold text-slate-400">
+            Severe
+          </span>
+
+          <span
+            id="itchDisplay"
+            class="text-sm font-black text-[#114a72] w-6 text-center"
+          >
+            5
+          </span>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Appearance and Sensation -->
+    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
+
+      <div class="space-y-4">
+
+        <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
+
+          <i
+            data-lucide="eye"
+            class="w-4 h-4 text-[#114a72]"
+          ></i>
+
+          Visual Appearance
+        </h3>
+
+        <div class="space-y-3">
+
+          <label class="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
+
+            <input
+              type="checkbox"
+              id="sympRedness"
+              class="w-4 h-4"
+            >
+
+            Redness
+          </label>
+
+          <label class="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
+
+            <input
+              type="checkbox"
+              id="sympScaling"
+              class="w-4 h-4"
+            >
+
+            Scaling
+          </label>
+
+          <label class="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
+
+            <input
+              type="checkbox"
+              id="sympRing"
+              class="w-4 h-4"
+            >
+
+            Ring-shaped lesion
+          </label>
+
+        </div>
+
+      </div>
+
+      <div class="space-y-4">
+
+        <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
+
+          <i
+            data-lucide="activity"
+            class="w-4 h-4 text-[#114a72]"
+          ></i>
+
+          Sensation
+        </h3>
+
+        <div class="space-y-3">
+
+          <label class="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
+
+            <input
+              type="checkbox"
+              id="sympItching"
+              class="w-4 h-4"
+            >
+
+            Itching
+          </label>
+
+          <label class="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
+
+            <input
+              type="checkbox"
+              id="sympPain"
+              class="w-4 h-4"
+            >
+
+            Pain / Tenderness
+          </label>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- Lesion Characteristics -->
+    <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
+
+      <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
+
+        <i
+          data-lucide="scan"
+          class="w-4 h-4 text-[#114a72]"
+        ></i>
+
+        Lesion Characteristics
+      </h3>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+
+        <div class="space-y-2">
+
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Lesion Size (cm)
+          </label>
+
+          <input
+            type="number"
+            id="lesionSizeCm"
+            min="0.1"
+            max="20"
+            step="0.5"
+            value="2.5"
+            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
+          >
+
         </div>
 
         <div class="space-y-2">
-          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Shape</span>
-          <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 space-y-2">
-            <label class="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="radio" name="lesionShape" value="Circular" checked class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Circular</span>
-            </label>
-            <label class="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="radio" name="lesionShape" value="Irregular" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Irregular</span>
-            </label>
-            <label class="flex items-center gap-2.5 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="radio" name="lesionShape" value="Multiple lesions" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Multiple lesions</span>
-            </label>
-          </div>
+
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Lesion Border
+          </label>
+
+          <select
+            id="lesionBorder"
+            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
+          >
+            <option value="well_defined_raised">
+              Well-defined, raised
+            </option>
+
+            <option value="well_defined">
+              Well-defined
+            </option>
+
+            <option value="ill_defined">
+              Ill-defined, diffuse
+            </option>
+
+            <option value="irregular">
+              Irregular
+            </option>
+          </select>
+
         </div>
+
+        <div class="space-y-2">
+
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Lesion Shape
+          </span>
+
+          <div class="bg-slate-50/50 border border-slate-200 rounded-xl p-3 space-y-2">
+
+            <label class="flex items-center gap-2.5 text-xs font-bold text-slate-700">
+
+              <input
+                type="radio"
+                name="lesionShape"
+                value="circular"
+                checked
+              >
+
+              Circular
+            </label>
+
+            <label class="flex items-center gap-2.5 text-xs font-bold text-slate-700">
+
+              <input
+                type="radio"
+                name="lesionShape"
+                value="irregular"
+              >
+
+              Irregular
+            </label>
+
+            <label class="flex items-center gap-2.5 text-xs font-bold text-slate-700">
+
+              <input
+                type="radio"
+                name="lesionShape"
+                value="multiple_lesions"
+              >
+
+              Multiple lesions
+            </label>
+
+          </div>
+
+        </div>
+
       </div>
 
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100">
 
         <div class="space-y-2">
-          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Central Clearing (Ring)</span>
-          <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 flex gap-6">
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="radio" id="centralClearingYes" name="centralClearing" value="yes" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Yes</span>
+
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Central Clearing
+          </span>
+
+          <div class="bg-slate-50/50 border border-slate-200 rounded-xl p-3 flex gap-6">
+
+            <label class="flex items-center gap-2 text-xs font-bold text-slate-700">
+
+              <input
+                type="radio"
+                name="centralClearing"
+                value="yes"
+              >
+
+              Yes
             </label>
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="radio" id="centralClearingNo" name="centralClearing" value="no" checked class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>No</span>
+
+            <label class="flex items-center gap-2 text-xs font-bold text-slate-700">
+
+              <input
+                type="radio"
+                name="centralClearing"
+                value="no"
+                checked
+              >
+
+              No
             </label>
+
           </div>
+
         </div>
 
         <div class="space-y-2">
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Color</label>
-          <select id="lesionColor" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
+
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Lesion Color
+          </label>
+
+          <select
+            id="lesionColor"
+            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
+          >
             <option value="red">Red</option>
             <option value="pink">Pink</option>
             <option value="brown">Brown</option>
-            <option value="silver_white">Silver/White (Scaly)</option>
+            <option value="silver_white">
+              Silver/White
+            </option>
             <option value="dark">Dark/Black</option>
           </select>
+
         </div>
 
         <div class="space-y-2">
-          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Location (Select all that apply)</span>
-          <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 grid grid-cols-2 gap-2">
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" name="lesionLocation" value="Arms" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Arms</span>
+
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Lesion Location
+          </span>
+
+          <div class="bg-slate-50/50 border border-slate-200 rounded-xl p-3 grid grid-cols-2 gap-2">
+
+            <label class="text-xs font-bold">
+              <input type="checkbox" name="lesionLocation" value="Arms">
+              Arms
             </label>
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" name="lesionLocation" value="Legs" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Legs</span>
+
+            <label class="text-xs font-bold">
+              <input type="checkbox" name="lesionLocation" value="Legs">
+              Legs
             </label>
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" name="lesionLocation" value="Face" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Face</span>
+
+            <label class="text-xs font-bold">
+              <input type="checkbox" name="lesionLocation" value="Face">
+              Face
             </label>
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" name="lesionLocation" value="Hands" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Hands</span>
+
+            <label class="text-xs font-bold">
+              <input type="checkbox" name="lesionLocation" value="Hands">
+              Hands
             </label>
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" name="lesionLocation" value="Feet" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Feet</span>
+
+            <label class="text-xs font-bold">
+              <input type="checkbox" name="lesionLocation" value="Feet">
+              Feet
             </label>
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" name="lesionLocation" value="Scalp" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Scalp</span>
+
+            <label class="text-xs font-bold">
+              <input type="checkbox" name="lesionLocation" value="Scalp">
+              Scalp
             </label>
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" name="lesionLocation" value="Back" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Back</span>
+
+            <label class="text-xs font-bold">
+              <input type="checkbox" name="lesionLocation" value="Back">
+              Back
             </label>
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" name="lesionLocation" value="Neck" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Neck</span>
+
+            <label class="text-xs font-bold">
+              <input type="checkbox" name="lesionLocation" value="Neck">
+              Neck
             </label>
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" name="lesionLocation" value="Chest" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Chest</span>
+
+            <label class="text-xs font-bold">
+              <input type="checkbox" name="lesionLocation" value="Chest">
+              Chest
             </label>
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" name="lesionLocation" value="Abdomen" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Abdomen</span>
+
+            <label class="text-xs font-bold">
+              <input type="checkbox" name="lesionLocation" value="Abdomen">
+              Abdomen
             </label>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
 
-    <!-- ==================== SECTION 4: ADDITIONAL CLINICAL SIGNS ==================== -->
+    <!-- Additional Signs -->
     <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
+
       <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-        <i data-lucide="activity" class="w-4 h-4 text-[#114a72]"></i> Additional Clinical Signs
+        Additional Clinical Signs
       </h3>
-      
+
       <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        
+
         <div class="space-y-2">
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Previous Treatment</label>
-          <select id="previousTreatment" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-[#114a72] bg-white">
+
+          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Previous Treatment
+          </label>
+
+          <select
+            id="previousTreatment"
+            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
+          >
             <option value="none">None</option>
-            <option value="topical_steroid">Topical steroid (cream)</option>
-            <option value="antifungal_cream">Antifungal cream</option>
-            <option value="oral_antifungal">Oral antifungal</option>
-            <option value="unknown">Unknown</option>
+            <option value="topical_steroid">
+              Topical steroid
+            </option>
+            <option value="antifungal_cream">
+              Antifungal cream
+            </option>
+            <option value="oral_antifungal">
+              Oral antifungal
+            </option>
+            <option value="unknown">
+              Unknown
+            </option>
           </select>
+
         </div>
 
         <div class="space-y-2">
-          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nail Changes (discoloration, thickening)</span>
-          <div class="bg-slate-50/50 border border-slate-200/60 rounded-xl p-3 flex gap-6">
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="radio" id="nailChangesYes" name="nailChanges" value="yes" class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>Yes</span>
+
+          <span class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+            Nail Changes
+          </span>
+
+          <div class="bg-slate-50/50 border border-slate-200 rounded-xl p-3 flex gap-6">
+
+            <label class="text-xs font-bold">
+
+              <input
+                type="radio"
+                name="nailChanges"
+                value="yes"
+              >
+
+              Yes
             </label>
-            <label class="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="radio" id="nailChangesNo" name="nailChanges" value="no" checked class="w-4 h-4 text-[#114a72] border-slate-300 focus:ring-[#114a72]">
-              <span>No</span>
+
+            <label class="text-xs font-bold">
+
+              <input
+                type="radio"
+                name="nailChanges"
+                value="no"
+                checked
+              >
+
+              No
             </label>
+
           </div>
+
         </div>
+
       </div>
+
     </div>
 
-    <!-- ==================== SECTION 5: ADDITIONAL NOTES ==================== -->
+    <!-- Notes -->
     <div class="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
-      <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-        <i data-lucide="file-text" class="w-4 h-4 text-[#114a72]"></i> Additional Notes
+
+      <h3 class="text-sm font-black text-slate-800 pb-2 border-b border-slate-100">
+        Additional Notes
       </h3>
-      <div class="space-y-2">
-        <label class="block text-xs font-bold text-slate-500">Clinical Observations</label>
-        <textarea id="clinicalNotes" rows="4" placeholder="Enter additional observations or patient history if necessary." class="w-full text-xs font-medium p-3 rounded-xl border border-slate-200 focus:outline-none focus:border-[#114a72] placeholder-slate-400 bg-white transition-colors resize-none shadow-inner"></textarea>
-      </div>
+
+      <textarea
+        id="clinicalNotes"
+        rows="4"
+        placeholder="Enter additional observations"
+        class="w-full text-xs p-3 rounded-xl border border-slate-200 resize-none"
+      ></textarea>
+
     </div>
 
-    <!-- ================= BOTTOM NAV ROW ================= -->
+    <!-- Submission message -->
+    <div
+      id="submissionMessage"
+      class="hidden rounded-xl p-4 text-sm font-bold"
+    ></div>
+
+    <!-- Buttons -->
     <div class="flex items-center justify-end gap-3 pt-4">
-      <button onclick="window.location.href='dashboard.html'" class="px-6 py-2.5 bg-white hover:bg-slate-50 border border-slate-300 text-slate-700 text-xs font-bold rounded-xl transition-all shadow-sm">
+
+      <button
+        type="button"
+        onclick="window.location.href='dashboard.html'"
+        class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 text-xs font-bold rounded-xl"
+      >
         Back
       </button>
-      
-      <button onclick="handleAnalysisSubmission()" class="px-6 py-2.5 bg-[#114a72] hover:bg-[#0c3d5e] text-white text-xs font-bold rounded-xl transition-all shadow-sm flex items-center gap-1.5">
-        Submit for AI Analysis <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+
+      <button
+        type="button"
+        id="submitAnalysisButton"
+        onclick="handleAnalysisSubmission()"
+        class="px-6 py-2.5 bg-[#114a72] hover:bg-[#0c3d5e] text-white text-xs font-bold rounded-xl flex items-center gap-2"
+      >
+        <span id="submitButtonText">
+          Submit for AI Analysis
+        </span>
+
+        <i
+          data-lucide="sparkles"
+          class="w-3.5 h-3.5"
+        ></i>
       </button>
+
     </div>
 
   </main>
 
-  <!-- ================= JAVASCRIPT CORE OPERATIONS ================= -->
   <script>
-    // Store uploaded images data
     let uploadedImages = [];
+    let submissionInProgress = false;
 
-    // ✅ Clear previous case data when starting fresh
-    function clearPreviousCaseData() {
-        // Keep authentication tokens, but clear case-specific data
-        localStorage.removeItem('current_case_id');
-        localStorage.removeItem('current_symptoms');
-        localStorage.removeItem('stellarX_temp_uploaded_image');
-        localStorage.removeItem('stellarX_uploaded_images');
-        localStorage.removeItem('view_case_id');
-        console.log('✅ Cleared previous case data');
+    window.addEventListener(
+      'DOMContentLoaded',
+      initializeSymptomsPage
+    );
+
+    function initializeSymptomsPage() {
+      if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+      }
+
+      if (!isAuthenticated()) {
+        redirectToLogin();
+        return;
+      }
+
+      clearPreviousCaseData();
+      resetImageInterface();
     }
 
-    window.onload = function() {
-        lucide.createIcons();
-        
-        // ✅ Clear previous case data when loading symptoms page
-        clearPreviousCaseData();
-        
-        // Check authentication
-        if (!isAuthenticated()) {
-            redirectToLogin();
-            return;
-        }
-        
-        // Reset image upload UI
-        uploadedImages = [];
-        document.getElementById('imagePreviewContainer').classList.add('hidden');
-        document.getElementById('uploadPromptZone').classList.remove('hidden');
-        document.getElementById('imageCountDisplay').innerText = '0 / 5';
-        document.getElementById('imageValidationMessage').classList.add('hidden');
+    function clearPreviousCaseData() {
+      localStorage.removeItem('current_case_id');
+      localStorage.removeItem('current_symptoms');
+      localStorage.removeItem('current_analysis_result');
+      localStorage.removeItem('stellarX_temp_uploaded_image');
+      localStorage.removeItem('stellarX_uploaded_images');
+      localStorage.removeItem('view_case_id');
+    }
+
+    function resetImageInterface() {
+      uploadedImages = [];
+
+      document
+        .getElementById('imagePreviewContainer')
+        .classList.add('hidden');
+
+      document
+        .getElementById('uploadPromptZone')
+        .classList.remove('hidden');
+
+      document.getElementById(
+        'imageCountDisplay'
+      ).textContent = '0 / 5';
+
+      document
+        .getElementById('imageValidationMessage')
+        .classList.add('hidden');
     }
 
     function handleImagePreview(input) {
-      const files = input.files;
-      
-      if (files.length === 0) return;
-      
-      // Check max limit
+      const files = Array.from(input.files || []);
+
+      if (files.length === 0) {
+        return;
+      }
+
       if (uploadedImages.length + files.length > 5) {
-        alert('Maximum 5 images allowed. You already have ' + uploadedImages.length + ' image(s).');
+        showImageError('Maximum 5 images allowed.');
         input.value = '';
         return;
       }
-      
-      // Process each file
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+
+      files.forEach(file => {
+        if (!file.type.startsWith('image/')) {
+          return;
+        }
+
         const reader = new FileReader();
-        
-        reader.onload = function(e) {
+
+        reader.onload = event => {
           uploadedImages.push({
             name: file.name,
-            data: e.target.result
+            data: event.target.result
           });
-          
-          // Update UI
+
           renderImagePreviews();
           updateImageCount();
-          validateImageCount();
-        }
-        
+        };
+
         reader.readAsDataURL(file);
-      }
-      
-      // Reset input
+      });
+
       input.value = '';
     }
 
     function renderImagePreviews() {
-      const container = document.getElementById('imagePreviewContainer');
+      const container = document.getElementById(
+        'imagePreviewContainer'
+      );
+
+      const prompt = document.getElementById(
+        'uploadPromptZone'
+      );
+
+      if (uploadedImages.length === 0) {
+        container.classList.add('hidden');
+        prompt.classList.remove('hidden');
+        container.innerHTML = '';
+        return;
+      }
+
       container.classList.remove('hidden');
-      
-      let html = '';
-      uploadedImages.forEach((img, index) => {
-        html += `
+      prompt.classList.add('hidden');
+
+      container.innerHTML = uploadedImages
+        .map((image, index) => `
           <div class="relative group">
-            <img src="${img.data}" alt="Uploaded ${index + 1}" class="w-20 h-20 object-cover rounded-lg border border-slate-200 shadow-sm">
-            <button onclick="removeImage(${index})" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs hover:bg-red-600 transition-colors shadow-md opacity-0 group-hover:opacity-100">
-              ✕
+            <img
+              src="${image.data}"
+              alt="Uploaded image ${index + 1}"
+              class="w-20 h-20 object-cover rounded-lg border border-slate-200 shadow-sm"
+            >
+
+            <button
+              type="button"
+              onclick="removeImage(${index})"
+              class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
+            >
+              ×
             </button>
-            <span class="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-[8px] text-center py-0.5 rounded-b-lg">${index + 1}</span>
           </div>
-        `;
-      });
-      
-      container.innerHTML = html;
-      
-      // Show/hide upload prompt
-      document.getElementById('uploadPromptZone').classList.toggle('hidden', uploadedImages.length > 0);
+        `)
+        .join('');
     }
 
     function removeImage(index) {
       uploadedImages.splice(index, 1);
       renderImagePreviews();
       updateImageCount();
-      validateImageCount();
-      
-      if (uploadedImages.length === 0) {
-        document.getElementById('imagePreviewContainer').classList.add('hidden');
-        document.getElementById('uploadPromptZone').classList.remove('hidden');
-      }
     }
 
     function updateImageCount() {
-      document.getElementById('imageCountDisplay').innerText = `${uploadedImages.length} / 5`;
+      document.getElementById(
+        'imageCountDisplay'
+      ).textContent = `${uploadedImages.length} / 5`;
+
+      document
+        .getElementById('imageValidationMessage')
+        .classList.add('hidden');
     }
 
-    function validateImageCount() {
-      const msg = document.getElementById('imageValidationMessage');
-      const text = document.getElementById('imageValidationText');
-      
-      if (uploadedImages.length === 0) {
-        msg.classList.remove('hidden');
-        text.innerText = 'Please upload at least 1 image before submitting.';
+    function showImageError(message) {
+      const errorContainer = document.getElementById(
+        'imageValidationMessage'
+      );
+
+      document.getElementById(
+        'imageValidationText'
+      ).textContent = message;
+
+      errorContainer.classList.remove('hidden');
+    }
+
+    function getSelectedRadioValue(name) {
+      return document.querySelector(
+        `input[name="${name}"]:checked`
+      )?.value || null;
+    }
+
+    function getSymptomsFromForm() {
+      const selectedLocations = Array.from(
+        document.querySelectorAll(
+          'input[name="lesionLocation"]:checked'
+        )
+      ).map(checkbox => checkbox.value);
+
+      return {
+        redness:
+          document.getElementById('sympRedness').checked,
+
+        scaling:
+          document.getElementById('sympScaling').checked,
+
+        ring_shaped:
+          document.getElementById('sympRing').checked,
+
+        itching:
+          document.getElementById('sympItching').checked,
+
+        pain:
+          document.getElementById('sympPain').checked,
+
+        duration_value:
+          Number.parseInt(
+            document.getElementById('durationValue').value,
+            10
+          ) || 1,
+
+        duration_unit:
+          document.getElementById('durationUnit').value,
+
+        itch_severity:
+          Number.parseInt(
+            document.getElementById('itchSeverity').value,
+            10
+          ) || 1,
+
+        lesion_size_cm:
+          Number.parseFloat(
+            document.getElementById('lesionSizeCm').value
+          ) || 0,
+
+        lesion_border:
+          document.getElementById('lesionBorder').value,
+
+        lesion_shape:
+          getSelectedRadioValue('lesionShape'),
+
+        lesion_color:
+          document.getElementById('lesionColor').value,
+
+        lesion_locations:
+          selectedLocations,
+
+        central_clearing:
+          getSelectedRadioValue('centralClearing') === 'yes',
+
+        previous_treatment:
+          document.getElementById('previousTreatment').value,
+
+        nail_changes:
+          getSelectedRadioValue('nailChanges') === 'yes',
+
+        notes:
+          document.getElementById('clinicalNotes').value.trim() || null
+      };
+    }
+
+    function validateSymptomInput(symptoms) {
+      const hasMajorSymptom =
+        symptoms.redness ||
+        symptoms.scaling ||
+        symptoms.ring_shaped ||
+        symptoms.itching ||
+        symptoms.pain ||
+        symptoms.central_clearing ||
+        symptoms.nail_changes;
+
+      if (!hasMajorSymptom) {
+        showSubmissionMessage(
+          'Please select at least one symptom or clinical sign.',
+          'error'
+        );
+
         return false;
-      } else if (uploadedImages.length > 5) {
-        msg.classList.remove('hidden');
-        text.innerText = 'Maximum 5 images allowed.';
-        return false;
-      } else {
-        msg.classList.add('hidden');
-        return true;
+      }
+
+      return true;
+    }
+
+    async function handleAnalysisSubmission() {
+      if (submissionInProgress) {
+        return;
+      }
+
+      const symptoms = getSymptomsFromForm();
+
+      if (!validateSymptomInput(symptoms)) {
+        return;
+      }
+
+      submissionInProgress = true;
+      setSubmittingState(true);
+      hideSubmissionMessage();
+
+      try {
+        localStorage.setItem(
+          'current_symptoms',
+          JSON.stringify(symptoms)
+        );
+
+        localStorage.setItem(
+          'stellarX_uploaded_images',
+          JSON.stringify(uploadedImages)
+        );
+
+        const patientLocation =
+          symptoms.lesion_locations.length > 0
+            ? symptoms.lesion_locations.join(', ')
+            : 'Unknown';
+
+        // Step 1: Create case
+        const newCase = await apiCreateCase(
+          35,
+          'male',
+          patientLocation
+        );
+
+        if (!newCase || !newCase.case_id) {
+          throw new Error(
+            'Backend did not return a case ID'
+          );
+        }
+
+        const caseId = newCase.case_id;
+
+        localStorage.setItem(
+          'current_case_id',
+          caseId
+        );
+
+        console.log('Case created:', caseId);
+
+        // Step 2: Save symptoms
+        await apiSaveSymptoms(
+          caseId,
+          symptoms
+        );
+
+        console.log(
+          'Symptoms saved:',
+          symptoms
+        );
+
+        // Step 3: Run weighted symptom analysis
+        const analysisResult =
+          await apiRunAnalysis(caseId);
+
+        console.log(
+          'Weighted symptom result:',
+          analysisResult
+        );
+
+        if (
+          !analysisResult ||
+          !Array.isArray(
+            analysisResult.ranked_conditions
+          )
+        ) {
+          throw new Error(
+            'Backend returned an invalid analysis result'
+          );
+        }
+
+        // Step 4: Save fresh analysis result
+        localStorage.setItem(
+          'current_analysis_result',
+          JSON.stringify(analysisResult)
+        );
+
+        saveCaseToLocalHistory(
+          caseId,
+          analysisResult
+        );
+
+        // Step 5: Redirect only after analysis succeeds
+        window.location.href =
+          `result.html?case_id=${encodeURIComponent(caseId)}`;
+
+      } catch (error) {
+        console.error(
+          'Analysis submission error:',
+          error
+        );
+
+        showSubmissionMessage(
+          error.message ||
+          'Failed to complete symptom analysis.',
+          'error'
+        );
+
+        submissionInProgress = false;
+        setSubmittingState(false);
       }
     }
 
-    // ✅ Helper function to extract symptoms from form
-    function getSymptomsFromForm() {
-        const locationCheckboxes = document.querySelectorAll('input[name="lesionLocation"]:checked');
-        const selectedLocations = Array.from(locationCheckboxes).map(cb => cb.value);
-        
-        return {
-            redness: document.getElementById('sympRedness').checked,
-            scaling: document.getElementById('sympScaling').checked,
-            ring_shaped: document.getElementById('sympRing').checked,
-            itching: document.getElementById('sympItching').checked,
-            pain: document.getElementById('sympPain').checked,
-            
-            duration_value: parseInt(document.getElementById('durationValue').value) || null,
-            duration_unit: document.getElementById('durationUnit').value || null,
-            itch_severity: parseInt(document.getElementById('itchSeverity').value) || null,
-            
-            lesion_size_cm: parseFloat(document.getElementById('lesionSizeCm').value) || null,
-            lesion_border: document.getElementById('lesionBorder').value || null,
-            lesion_shape: document.querySelector('input[name="lesionShape"]:checked')?.value || null,
-            lesion_color: document.getElementById('lesionColor').value || null,
-            lesion_locations: selectedLocations.length > 0 ? selectedLocations : null,
-            
-            central_clearing: document.querySelector('input[name="centralClearing"]:checked')?.value === 'yes' || false,
-            previous_treatment: document.getElementById('previousTreatment').value || null,
-            nail_changes: document.querySelector('input[name="nailChanges"]:checked')?.value === 'yes' || false,
-            
-            notes: document.getElementById('clinicalNotes').value || null
-        };
+    function saveCaseToLocalHistory(
+      caseId,
+      analysisResult
+    ) {
+      let history = [];
+
+      try {
+        history = JSON.parse(
+          localStorage.getItem(
+            'stellarX_diagnostic_history'
+          ) || '[]'
+        );
+      } catch {
+        history = [];
+      }
+
+      const topCondition =
+        analysisResult.ranked_conditions?.[0];
+
+      history.unshift({
+        caseId,
+        date: new Date().toLocaleDateString(
+          'en-US',
+          {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          }
+        ),
+        prediction:
+          topCondition?.condition || 'Unknown',
+        percentage:
+          topCondition?.percentage || 0,
+        analysisType:
+          analysisResult.analysis_type ||
+          'weighted_symptom_decision_support'
+      });
+
+      localStorage.setItem(
+        'stellarX_diagnostic_history',
+        JSON.stringify(history)
+      );
     }
 
-    // ✅ Updated submission handler
-    async function handleAnalysisSubmission() {
-        try {
-            // Validate image count
-            if (!validateImageCount()) {
-                document.getElementById('imageValidationMessage').classList.remove('hidden');
-                document.getElementById('imageValidationText').innerText = 'Please upload at least 1 image before submitting.';
-                return;
-            }
-            
-            // Save images to localStorage
-            localStorage.setItem('stellarX_uploaded_images', JSON.stringify(uploadedImages));
-            
-            // Get symptoms from form
-            const symptoms = getSymptomsFromForm();
-            
-            // Store in localStorage (for result page)
-            localStorage.setItem('current_symptoms', JSON.stringify(symptoms));
-            
-            // Create a new case
-            const caseData = {
-                patient_age: 35,
-                patient_gender: 'male',
-                patient_location: symptoms.lesion_locations?.join(', ') || 'Unknown'
-            };
-            
-            const newCase = await apiCreateCase(
-                caseData.patient_age,
-                caseData.patient_gender,
-                caseData.patient_location
-            );
-            
-            const caseId = newCase.case_id;
-            localStorage.setItem('current_case_id', caseId);
-            console.log('✅ New case created:', caseId);
-            
-            // Save symptoms to backend
-            try {
-                await apiSaveSymptoms(caseId, symptoms);
-                console.log('✅ Symptoms saved for case:', caseId);
-            } catch (error) {
-                console.warn('⚠️ Failed to save symptoms:', error);
-                // Continue anyway - don't block the user
-            }
-            
-            // Save to history (for display)
-            const currentLogs = JSON.parse(localStorage.getItem('stellarX_diagnostic_history')) || [];
-            
-            let calculatedPrediction = "Eczema";
-            let calculatedSeverity = "Moderate";
-            
-            if (document.getElementById('sympRing').checked) {
-                calculatedPrediction = "Tinea Infection";
-                calculatedSeverity = "Severe";
-            } else if (document.getElementById('sympScaling').checked && document.querySelector('input[name="lesionShape"]:checked')?.value === 'Irregular') {
-                calculatedPrediction = "Psoriasis";
-                calculatedSeverity = "Moderate";
-            } else if (document.getElementById('sympItching').checked && !document.getElementById('sympRing').checked) {
-                calculatedPrediction = "Eczema";
-                calculatedSeverity = "Mild";
-            }
-            
-            const newlyGeneratedCase = {
-                caseId: caseId,
-                date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-                prediction: calculatedPrediction,
-                severity: calculatedSeverity
-            };
-            
-            currentLogs.unshift(newlyGeneratedCase);
-            localStorage.setItem('stellarX_diagnostic_history', JSON.stringify(currentLogs));
-            
-            // Redirect to result
-            window.location.href = 'result.html?case_id=' + caseId;
-            
-        } catch (error) {
-            alert('Error submitting analysis: ' + error.message);
-        }
+    function setSubmittingState(isSubmitting) {
+      const button = document.getElementById(
+        'submitAnalysisButton'
+      );
+
+      const text = document.getElementById(
+        'submitButtonText'
+      );
+
+      button.disabled = isSubmitting;
+
+      button.classList.toggle(
+        'opacity-60',
+        isSubmitting
+      );
+
+      button.classList.toggle(
+        'cursor-not-allowed',
+        isSubmitting
+      );
+
+      text.textContent = isSubmitting
+        ? 'Analysing Symptoms...'
+        : 'Submit for AI Analysis';
     }
 
-    async function validateImageQuality(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-        const token = localStorage.getItem('access_token');
-        const response = await fetch('http://127.0.0.1:8080/api/images/validate-quality', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        });
-        
-        const result = await response.json();
-        return result;
-    } catch (error) {
-        console.error('Quality validation failed:', error);
-        return null;
+    function showSubmissionMessage(
+      message,
+      type
+    ) {
+      const container = document.getElementById(
+        'submissionMessage'
+      );
+
+      container.textContent = message;
+
+      container.className =
+        type === 'error'
+          ? 'rounded-xl p-4 text-sm font-bold bg-red-50 text-red-700 border border-red-200'
+          : 'rounded-xl p-4 text-sm font-bold bg-green-50 text-green-700 border border-green-200';
+
+      container.classList.remove('hidden');
     }
 
-    async function checkImageQuality(file) {
-    const formData = new FormData();
-    formData.append('file', file);
-    
-    try {
-        const token = localStorage.getItem('access_token');
-        const response = await fetch('http://127.0.0.1:8080/api/images/validate-quality', {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${token}`
-            },
-            body: formData
-        });
-        
-        const result = await response.json();
-        displayQualityFeedback(result);
-        return result;
-    } catch (error) {
-        console.error('Quality check failed:', error);
-        return null;
+    function hideSubmissionMessage() {
+      document
+        .getElementById('submissionMessage')
+        .classList.add('hidden');
     }
-}
-
-function displayQualityFeedback(result) {
-    const feedback = document.getElementById('qualityFeedback');
-    const status = document.getElementById('qualityStatus');
-    const issues = document.getElementById('qualityIssues');
-    
-    feedback.classList.remove('hidden');
-    
-    if (result.is_valid) {
-        status.textContent = '✅ Image quality good!';
-        status.className = 'text-sm font-bold text-green-600';
-        issues.innerHTML = '';
-    } else {
-        status.textContent = '⚠️ Image quality issues detected:';
-        status.className = 'text-sm font-bold text-yellow-600';
-        issues.innerHTML = result.issues.map(i => `<li>${i}</li>`).join('');
-    }
-}
-}
   </script>
+
 </body>
 </html>
