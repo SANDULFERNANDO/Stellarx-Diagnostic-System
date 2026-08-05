@@ -7,6 +7,8 @@ from app.models import PatientCase
 from app.schemas import CaseCreate, CaseResponse, CaseUpdate
 from app.auth_utils import get_current_user
 from app.models import HealthcareWorker
+from typing import Optional
+from datetime import datetime
 
 router = APIRouter(prefix="/cases", tags=["Cases"])
 
@@ -34,8 +36,53 @@ def create_case(
     return new_case
 
 @router.get("/", response_model=List[CaseResponse])
-def list_cases(db: Session = Depends(get_db), current_user: HealthcareWorker = Depends(get_current_user)):
-    return db.query(PatientCase).filter(PatientCase.worker_id == current_user.user_id).order_by(PatientCase.created_at.desc()).all()
+def list_cases(
+    case_id: Optional[str] = None,
+    status: Optional[str] = None,
+    start_date: Optional[str] = None,
+    end_date: Optional[str] = None,
+    db: Session = Depends(get_db),
+    current_user: HealthcareWorker = Depends(get_current_user)
+):
+    """
+    List all cases for the current user with optional filters.
+    
+    Filters:
+    - case_id: partial match on case_id
+    - status: DRAFT, READY_FOR_ANALYSIS, COMPLETED, REVIEWED
+    - start_date: filter cases created on or after this date (YYYY-MM-DD)
+    - end_date: filter cases created on or before this date (YYYY-MM-DD)
+    """
+    query = db.query(PatientCase).filter(
+        PatientCase.worker_id == current_user.user_id
+    )
+    
+    # Filter by case_id (partial match)
+    if case_id:
+        query = query.filter(PatientCase.case_id.contains(case_id))
+    
+    # Filter by status
+    if status:
+        query = query.filter(PatientCase.status == status)
+    
+    # Filter by start date
+    if start_date:
+        try:
+            start = datetime.strptime(start_date, "%Y-%m-%d")
+            query = query.filter(PatientCase.case_date >= start.date())
+        except ValueError:
+            pass  # Ignore invalid date format
+    
+    # Filter by end date
+    if end_date:
+        try:
+            end = datetime.strptime(end_date, "%Y-%m-%d")
+            query = query.filter(PatientCase.case_date <= end.date())
+        except ValueError:
+            pass  # Ignore invalid date format
+    
+    cases = query.order_by(PatientCase.created_at.desc()).all()
+    return cases
 
 @router.get("/{case_id}", response_model=CaseResponse)
 def get_case(case_id: str, db: Session = Depends(get_db), current_user: HealthcareWorker = Depends(get_current_user)):

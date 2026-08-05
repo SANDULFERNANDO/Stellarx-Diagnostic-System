@@ -53,6 +53,78 @@
 
     <hr class="border-slate-200/80">
 
+    <!-- ================= FILTER SECTION (NEW) ================= -->
+    <div class="bg-white rounded-xl border border-slate-200/60 shadow-sm p-4 space-y-3">
+      <div class="flex items-center gap-2">
+        <i data-lucide="filter" class="w-4 h-4 text-[#114a72]"></i>
+        <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Filter Cases</span>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+        <!-- Search by Case ID -->
+        <div>
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Case ID</label>
+          <input
+            type="text"
+            id="filterCaseId"
+            placeholder="Search by Case ID..."
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#114a72] transition-colors"
+          />
+        </div>
+        
+        <!-- Filter by Status -->
+        <div>
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Status</label>
+          <select
+            id="filterStatus"
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#114a72] transition-colors bg-white"
+          >
+            <option value="">All Statuses</option>
+            <option value="DRAFT">Draft</option>
+            <option value="READY_FOR_ANALYSIS">Ready for Analysis</option>
+            <option value="COMPLETED">Completed</option>
+            <option value="REVIEWED">Reviewed</option>
+          </select>
+        </div>
+        
+        <!-- Start Date -->
+        <div>
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">From Date</label>
+          <input
+            type="date"
+            id="filterStartDate"
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#114a72] transition-colors"
+          />
+        </div>
+        
+        <!-- End Date -->
+        <div>
+          <label class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">To Date</label>
+          <input
+            type="date"
+            id="filterEndDate"
+            class="w-full px-3 py-2 border border-slate-200 rounded-lg text-sm focus:outline-none focus:border-[#114a72] transition-colors"
+          />
+        </div>
+      </div>
+      
+      <!-- Filter Actions -->
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button
+          onclick="applyFilters()"
+          class="px-4 py-2 bg-[#114a72] hover:bg-[#0c3d5e] text-white text-xs font-bold rounded-lg transition-colors shadow-sm"
+        >
+          Apply Filters
+        </button>
+        <button
+          onclick="clearFilters()"
+          class="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold rounded-lg transition-colors"
+        >
+          Clear
+        </button>
+      </div>
+    </div>
+
     <!-- Full Case History Grid Wrapper -->
     <div class="bg-white rounded-xl border border-slate-200/60 shadow-sm p-6 space-y-4">
       <div class="flex items-center justify-between pb-2 border-b border-slate-100">
@@ -84,7 +156,46 @@
       window.location.href = 'result.html';
     }
 
-    async function loadAllCaseHistory() {
+    // =====================================================
+    // FILTER FUNCTIONS (FR-48)
+    // =====================================================
+
+    function applyFilters() {
+      const filters = {
+        case_id: document.getElementById('filterCaseId').value.trim() || undefined,
+        status: document.getElementById('filterStatus').value || undefined,
+        start_date: document.getElementById('filterStartDate').value || undefined,
+        end_date: document.getElementById('filterEndDate').value || undefined
+      };
+      
+      // Remove undefined values
+      Object.keys(filters).forEach(key => {
+        if (filters[key] === undefined) delete filters[key];
+      });
+      
+      // Show loading state
+      document.getElementById('fullHistoryContainer').innerHTML = `
+        <div class="text-center py-8">
+          <div class="animate-pulse text-slate-400">Loading...</div>
+        </div>
+      `;
+      
+      loadAllCaseHistory(filters);
+    }
+
+    function clearFilters() {
+      document.getElementById('filterCaseId').value = '';
+      document.getElementById('filterStatus').value = '';
+      document.getElementById('filterStartDate').value = '';
+      document.getElementById('filterEndDate').value = '';
+      loadAllCaseHistory({});
+    }
+
+    // =====================================================
+    // LOAD CASE HISTORY (UPDATED WITH FILTERS)
+    // =====================================================
+
+    async function loadAllCaseHistory(filters = {}) {
       const container = document.getElementById('fullHistoryContainer');
       const countBadge = document.getElementById('historyTotalCount');
       
@@ -95,11 +206,17 @@
       }
       
       try {
-        const cases = await apiListCases();
+        // ✅ Pass filters to API
+        const cases = await apiListCases(filters);
         countBadge.innerText = `Total: ${cases.length} Cases`;
         
         if (cases.length === 0) {
-          container.innerHTML = `<p class="text-xs font-medium text-slate-400 py-8 text-center">No cases found.</p>`;
+          container.innerHTML = `
+            <div class="text-center py-8">
+              <p class="text-xs font-medium text-slate-400">No cases found.</p>
+              <p class="text-xs text-slate-300 mt-1">Try adjusting your filters.</p>
+            </div>
+          `;
           return;
         }
         
@@ -110,10 +227,11 @@
           const prediction = item.diagnosis_result || 'Pending';
           const status = item.status || 'DRAFT';
           const badgeColor = status === 'COMPLETED' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' : 
-                             'bg-amber-50 text-amber-700 border-amber-100';
+                             status === 'DRAFT' ? 'bg-amber-50 text-amber-700 border-amber-100' :
+                             'bg-slate-50 text-slate-600 border-slate-200';
           const confidenceText = status === 'COMPLETED' ? 'Completed' : 'In Progress';
           
-          // ✅ NEW: Fetch image count for this case
+          // Fetch image count for this case
           let imageCount = 0;
           try {
             const imagesResponse = await apiGetCaseImages(item.case_id);
