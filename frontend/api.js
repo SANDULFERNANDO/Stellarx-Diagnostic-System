@@ -110,8 +110,20 @@ async function apiCreateCase(patient_age, patient_gender, patient_location) {
     }, true);
 }
 
-async function apiListCases() {
-    return apiRequest('/cases/', 'GET', null, true);
+// =====================================================
+// CASE APIS
+// =====================================================
+
+async function apiListCases(filters = {}) {
+    // Build query string from filters
+    const params = new URLSearchParams();
+    if (filters.case_id) params.append('case_id', filters.case_id);
+    if (filters.status) params.append('status', filters.status);
+    if (filters.start_date) params.append('start_date', filters.start_date);
+    if (filters.end_date) params.append('end_date', filters.end_date);
+    
+    const url = `/cases/?${params.toString()}`;
+    return apiRequest(url, 'GET', null, true);
 }
 
 async function apiGetCase(caseId) {
