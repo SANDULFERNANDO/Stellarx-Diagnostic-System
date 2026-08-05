@@ -216,3 +216,33 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+# ============================================================
+# StellarX new EfficientNet run
+# ============================================================
+
+# Local datasets and generated outputs
+processed_dataset_new_run/
+ml_outputs_new_run/
+dataset_backups/
+stellarx_ml_report_assets_new_run.zip
+
+# Virtual environment
+ml/venv/
+
+# Keep report-ready PNG files
+!report_assets_new_run/
+!report_assets_new_run/**
+
+# Ignore new-run model checkpoints by default
+models_new_run/*.keras
+
+# Keep only the final model
+!models_new_run/stellarx_efficientnetb0_new_final.keras
+
+# Previous local datasets and generated outputs
+processed_dataset/
+ml_outputs/
+models/
+train/
+validation/
+test/
