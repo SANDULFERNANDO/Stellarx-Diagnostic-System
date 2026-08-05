@@ -216,36 +216,33 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
-
 # ============================================================
-# StellarX project-specific ignores
+# StellarX new EfficientNet run
 # ============================================================
 
-# Datasets
-train/
-test/
-validation/
-ml/dataset/
+# Local datasets and generated outputs
+processed_dataset_new_run/
+ml_outputs_new_run/
+dataset_backups/
+stellarx_ml_report_assets_new_run.zip
 
-# ML virtual environments
+# Virtual environment
 ml/venv/
-backend/venv/
 
-# Generated ML outputs
-ml/efficientnet_outputs/
+# Keep report-ready PNG files
+!report_assets_new_run/
+!report_assets_new_run/**
 
-# Trained model files
-*.keras
-*.h5
+# Ignore new-run model checkpoints by default
+models_new_run/*.keras
 
-# Dataset cleanup backups
-exact_duplicate_backup/
-leakage_backup/
-duplicate_backup/
-ml/duplicate_backup/
+# Keep only the final model
+!models_new_run/stellarx_efficientnetb0_new_final.keras
 
-# Large prediction exports
-ml/efficientnet_outputs/*_predictions.csv
-
-# Windows temporary files
-Thumbs.db
+# Previous local datasets and generated outputs
+processed_dataset/
+ml_outputs/
+models/
+train/
+validation/
+test/
