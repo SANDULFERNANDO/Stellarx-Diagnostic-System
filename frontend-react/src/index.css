@@ -1,0 +1,16 @@
+@import "tailwindcss";
+
+@theme {
+  --color-bg-gray: #f4f7f9;
+  --color-stellar-navy: #114a72;
+  --color-stellar-dark: #0f2d4a;
+  --color-stellarNavy: #114a72;
+  --color-stellarDark: #0f2d4a;
+  --color-bgGray: #f4f7f9;
+}
+
+@layer base {
+  body {
+    @apply bg-bgGray text-slate-800 font-sans antialiased;
+  }
+}
