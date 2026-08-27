@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Image, UploadCloud, AlertCircle, Clock, Eye as EyeIcon, Activity, Scan, Sparkles, ArrowLeft } from 'lucide-react';
+import { Image, UploadCloud, AlertCircle, Clock, Eye as EyeIcon, Activity, Scan, Sparkles, ArrowLeft, HeartPulse, ShieldAlert, CheckCircle2, ChevronRight, FileText } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api';
 
 export default function SymptomsForm() {
@@ -154,309 +155,456 @@ export default function SymptomsForm() {
     }
   };
 
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.05 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
+  };
+
   return (
-    <div className="p-6 md:p-10 space-y-6 max-w-5xl mx-auto pb-24">
-      {/* Title */}
-      <div className="space-y-1">
-        <h1 className="text-3xl font-black text-slate-900 tracking-tight">Enter Observed Symptoms</h1>
-        <p className="text-sm text-slate-500 font-medium">Enter the clinical findings to generate weighted symptom compatibility percentages.</p>
-      </div>
-
-      {/* Image Upload */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
-        <div className="flex items-center justify-between">
-          <h3 className="text-sm font-black text-slate-800 flex items-center gap-2">
-            <Image className="w-4 h-4 text-stellarNavy" /> Upload Clinical Images
-          </h3>
-          <span className="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
-            {images.length} / 5
-          </span>
-        </div>
-
-        <div className="border-2 border-dashed border-slate-200 hover:border-sky-500 rounded-xl bg-slate-50/50 p-6 text-center cursor-pointer transition-colors relative group">
-          <input 
-            type="file" 
-            ref={fileInputRef}
-            className="absolute inset-0 opacity-0 cursor-pointer" 
-            accept="image/jpeg,image/png,image/webp" 
-            multiple 
-            onChange={handleImageUpload}
-          />
-          
-          {images.length === 0 ? (
-            <div className="space-y-2">
-              <div className="w-10 h-10 bg-sky-50 text-stellarNavy rounded-full flex items-center justify-center mx-auto">
-                <UploadCloud className="w-5 h-5" />
-              </div>
-              <p className="text-xs font-bold text-slate-700">
-                Drag and drop patient lesion images here, or <span className="text-sky-500">browse</span>
-              </p>
-              <p className="text-[10px] text-slate-400 font-medium">Supports JPG, PNG and WebP • Maximum 5 images</p>
-            </div>
-          ) : (
-            <div className="flex flex-wrap gap-3 justify-center z-10 relative pointer-events-none">
-              {images.map((img, i) => (
-                <div key={i} className="relative group pointer-events-auto">
-                  <img src={img.data} alt="Upload" className="w-20 h-20 object-cover rounded-lg border border-slate-200 shadow-sm" />
-                  <button 
-                    type="button" 
-                    onClick={() => removeImage(i)}
-                    className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 transition-colors text-white rounded-full w-5 h-5 flex items-center justify-center text-xs"
-                  >
-                    ×
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
+    <motion.div 
+      initial="hidden"
+      animate="show"
+      variants={containerVariants}
+      className="p-6 md:p-10 space-y-8 max-w-5xl mx-auto pb-32"
+    >
+      {/* Title Header */}
+      <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6 bg-white p-8 rounded-3xl shadow-sm border border-slate-100 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-bl from-brand-primary/5 to-brand-secondary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+        
+        <div className="space-y-3 relative z-10">
+          <div className="flex items-center space-x-2 text-brand-secondary">
+            <HeartPulse className="w-5 h-5" />
+            <span className="text-xs font-bold uppercase tracking-wider">Clinical Intake</span>
+          </div>
+          <h1 className="text-3xl md:text-4xl font-black text-slate-800 tracking-tight">New Diagnostic Case</h1>
+          <p className="text-sm md:text-base text-slate-500 font-medium max-w-xl leading-relaxed">
+            Enter the patient's observed symptoms, medical history, and upload clinical images to begin AI analysis.
+          </p>
         </div>
         
-        {imageError && (
-          <div className="text-xs font-bold text-red-500 flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" /> <span>{imageError}</span>
-          </div>
-        )}
-        <p className="text-[10px] text-slate-400">
-          The current weighted symptom model does not analyse the image. Images are retained for later image-model integration.
-        </p>
-      </div>
+        <div className="relative z-10 shrink-0 flex gap-3">
+          <Link 
+            to="/dashboard" 
+            className="px-5 py-2.5 bg-slate-50 hover:bg-slate-100 border border-slate-200 hover:border-slate-300 rounded-xl text-sm font-bold text-slate-700 shadow-sm transition-all flex items-center justify-center gap-2 group"
+          >
+            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" /> Cancel
+          </Link>
+        </div>
+      </motion.div>
 
-      {/* Duration and Severity */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="space-y-2">
-          <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-            <Clock className="w-4 h-4 text-stellarNavy" /> Duration & Severity
-          </h3>
-          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Duration of Symptoms</label>
-          <div className="flex gap-3">
-            <input 
-              type="number" 
-              min="1" 
-              value={durationValue} 
-              onChange={e => setDurationValue(Number(e.target.value))}
-              className="w-1/3 px-3 py-2 border border-slate-200 rounded-xl text-sm"
-            />
-            <select 
-              value={durationUnit} 
-              onChange={e => setDurationUnit(e.target.value)}
-              className="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
-            >
-              <option value="days">Days</option>
-              <option value="weeks">Weeks</option>
-              <option value="months">Months</option>
-            </select>
-          </div>
-        </div>
-        <div className="space-y-2">
-          <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider pt-6">Itch Severity</label>
-          <div className="flex items-center gap-4 mt-1">
-            <span className="text-[10px] font-bold text-slate-400">Mild</span>
-            <input 
-              type="range" 
-              min="1" 
-              max="10" 
-              value={itchSeverity}
-              onChange={e => setItchSeverity(Number(e.target.value))}
-              className="flex-1 accent-stellarNavy"
-            />
-            <span className="text-[10px] font-bold text-slate-400">Severe</span>
-            <span className="text-sm font-black text-stellarNavy w-6 text-center">{itchSeverity}</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Appearance and Sensation */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 grid grid-cols-1 md:grid-cols-2 gap-8">
-        <div className="space-y-4">
-          <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-            <EyeIcon className="w-4 h-4 text-stellarNavy" /> Visual Appearance
-          </h3>
-          <div className="space-y-3">
-            <label className="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" checked={redness} onChange={e => setRedness(e.target.checked)} className="w-4 h-4" /> Redness
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" checked={scaling} onChange={e => setScaling(e.target.checked)} className="w-4 h-4" /> Scaling
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" checked={ringShaped} onChange={e => setRingShaped(e.target.checked)} className="w-4 h-4" /> Ring-shaped lesion
-            </label>
-          </div>
-        </div>
-        <div className="space-y-4">
-          <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-            <Activity className="w-4 h-4 text-stellarNavy" /> Sensation
-          </h3>
-          <div className="space-y-3">
-            <label className="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" checked={itching} onChange={e => setItching(e.target.checked)} className="w-4 h-4" /> Itching
-            </label>
-            <label className="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
-              <input type="checkbox" checked={pain} onChange={e => setPain(e.target.checked)} className="w-4 h-4" /> Pain / Tenderness
-            </label>
-          </div>
-        </div>
-      </div>
-
-      {/* Lesion Characteristics */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
-        <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-          <Scan className="w-4 h-4 text-stellarNavy" /> Lesion Characteristics
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Size (cm)</label>
-            <input 
-              type="number" 
-              min="0.1" 
-              step="0.5" 
-              value={lesionSizeCm}
-              onChange={e => setLesionSizeCm(Number(e.target.value))}
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
-            />
-          </div>
-          <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Border</label>
-            <select 
-              value={lesionBorder} 
-              onChange={e => setLesionBorder(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
-            >
-              <option value="" disabled>Select border...</option>
-              <option value="well_defined_raised">Well-defined, raised</option>
-              <option value="well_defined">Well-defined</option>
-              <option value="ill_defined">Ill-defined, diffuse</option>
-              <option value="irregular">Irregular</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Shape</span>
-            <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-3 space-y-2">
-              {['circular', 'irregular', 'multiple_lesions'].map(val => (
-                <label key={val} className="flex items-center gap-2.5 text-xs font-bold text-slate-700">
-                  <input type="radio" name="lesionShape" value={val} checked={lesionShape === val} onChange={e => setLesionShape(e.target.value)} />
-                  {val.replace('_', ' ').replace(/\b\w/g, l => l.toUpperCase())}
-                </label>
-              ))}
+      {/* Main Content Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        
+        {/* Left Column (Main Form) */}
+        <div className="lg:col-span-8 space-y-8">
+          
+          {/* Image Upload */}
+          <motion.div variants={itemVariants} className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 relative overflow-hidden group">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-sky-50 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2 group-hover:scale-110 transition-transform duration-500" />
+            
+            <div className="flex items-center justify-between mb-6 relative z-10">
+              <h3 className="text-base font-black text-slate-800 flex items-center gap-2.5">
+                <div className="w-8 h-8 bg-sky-50 rounded-lg flex items-center justify-center">
+                  <Image className="w-4 h-4 text-brand-primary" />
+                </div>
+                Clinical Images <span className="text-red-500">*</span>
+              </h3>
+              <span className={`text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 ${images.length > 0 ? 'bg-sky-50 text-brand-primary' : 'bg-slate-100 text-slate-500'}`}>
+                {images.length > 0 && <CheckCircle2 className="w-3.5 h-3.5" />}
+                {images.length} / 5 Uploaded
+              </span>
             </div>
-          </div>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-4 border-t border-slate-100">
-          <div className="space-y-2">
-            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Central Clearing</span>
-            <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-3 flex gap-6">
-              {['yes', 'no'].map(val => (
-                <label key={val} className="flex items-center gap-2 text-xs font-bold text-slate-700">
-                  <input type="radio" name="centralClearing" value={val} checked={centralClearing === val} onChange={e => setCentralClearing(e.target.value)} />
-                  {val.toUpperCase()}
-                </label>
-              ))}
+            <div className="border-2 border-dashed border-slate-200 hover:border-brand-primary rounded-2xl bg-slate-50/50 p-8 text-center cursor-pointer transition-colors relative group/dropzone z-10">
+              <input 
+                type="file" 
+                ref={fileInputRef}
+                className="absolute inset-0 opacity-0 cursor-pointer z-20" 
+                accept="image/jpeg,image/png,image/webp" 
+                multiple 
+                onChange={handleImageUpload}
+              />
+              
+              {images.length === 0 ? (
+                <div className="space-y-3 pointer-events-none">
+                  <div className="w-16 h-16 bg-white shadow-sm border border-slate-100 text-brand-primary rounded-2xl flex items-center justify-center mx-auto group-hover/dropzone:scale-110 group-hover/dropzone:-translate-y-1 transition-all duration-300">
+                    <UploadCloud className="w-8 h-8" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-700">
+                      Drag & drop clinical images here
+                    </p>
+                    <p className="text-xs font-medium text-brand-primary mt-1">or click to browse files</p>
+                  </div>
+                  <div className="pt-2 flex items-center justify-center gap-4 text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                    <span>JPEG, PNG, WebP</span>
+                    <span className="w-1 h-1 rounded-full bg-slate-300"></span>
+                    <span>Max 5 images</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-wrap gap-4 justify-center z-30 relative">
+                  <AnimatePresence>
+                    {images.map((img, i) => (
+                      <motion.div 
+                        initial={{ opacity: 0, scale: 0.8 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        exit={{ opacity: 0, scale: 0.8 }}
+                        key={i} 
+                        className="relative group/img pointer-events-auto"
+                      >
+                        <img src={img.data} alt="Upload" className="w-24 h-24 object-cover rounded-xl border border-slate-200 shadow-sm" />
+                        <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover/img:opacity-100 transition-opacity flex items-center justify-center" />
+                        <button 
+                          type="button" 
+                          onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeImage(i); }}
+                          className="absolute -top-2 -right-2 bg-white text-slate-700 hover:text-red-500 hover:scale-110 shadow-md border border-slate-100 transition-all rounded-full w-7 h-7 flex items-center justify-center text-sm font-bold z-40"
+                        >
+                          ×
+                        </button>
+                      </motion.div>
+                    ))}
+                  </AnimatePresence>
+                  
+                  {images.length < 5 && (
+                    <div className="w-24 h-24 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:text-brand-primary hover:border-brand-primary hover:bg-white transition-colors cursor-pointer pointer-events-auto">
+                      <Plus className="w-6 h-6 mb-1" />
+                      <span className="text-[10px] font-bold uppercase tracking-wider">Add More</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          </div>
-          <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Color</label>
-            <select 
-              value={lesionColor} 
-              onChange={e => setLesionColor(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
-            >
-              <option value="" disabled>Select color...</option>
-              <option value="red">Red</option>
-              <option value="pink">Pink</option>
-              <option value="brown">Brown</option>
-              <option value="silver_white">Silver/White</option>
-              <option value="dark">Dark/Black</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Lesion Location</span>
-            <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-3 grid grid-cols-2 gap-2">
-              {locationOptions.map(loc => (
-                <label key={loc} className="text-xs font-bold">
+            
+            <AnimatePresence>
+              {imageError && (
+                <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="mt-4">
+                  <div className="text-xs font-bold text-red-500 bg-red-50 border border-red-100 px-4 py-3 rounded-xl flex items-center gap-2">
+                    <AlertCircle className="w-4 h-4 shrink-0" /> <span>{imageError}</span>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+            
+            <div className="mt-4 flex items-start gap-2 bg-slate-50 p-4 rounded-xl border border-slate-100">
+              <ShieldAlert className="w-4 h-4 text-slate-400 shrink-0 mt-0.5" />
+              <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+                Images are securely stored for documentation purposes. The current AI model primarily analyzes structural text data (symptoms). Image analysis models are currently in beta integration.
+              </p>
+            </div>
+          </motion.div>
+
+          {/* Lesion Characteristics */}
+          <motion.div variants={itemVariants} className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 space-y-6 relative overflow-hidden">
+            <h3 className="text-base font-black text-slate-800 flex items-center gap-2.5 pb-4 border-b border-slate-100">
+              <div className="w-8 h-8 bg-indigo-50 rounded-lg flex items-center justify-center">
+                <Scan className="w-4 h-4 text-indigo-500" />
+              </div>
+              Lesion Characteristics
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Lesion Size (cm)</label>
+                <div className="relative group">
                   <input 
-                    type="checkbox" 
-                    checked={lesionLocations.includes(loc)} 
-                    onChange={() => toggleLocation(loc)} 
-                    className="mr-1.5"
+                    type="number" 
+                    min="0.1" 
+                    step="0.5" 
+                    value={lesionSizeCm}
+                    onChange={e => setLesionSizeCm(Number(e.target.value))}
+                    className="w-full pl-4 pr-10 py-3 bg-slate-50 border border-slate-200 focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 rounded-xl text-sm font-medium text-slate-800 outline-none transition-all"
                   />
-                  {loc}
-                </label>
-              ))}
-            </div>
-          </div>
-        </div>
-      </div>
+                  <span className="absolute right-4 top-3.5 text-xs font-bold text-slate-400">cm</span>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Lesion Border</label>
+                <select 
+                  value={lesionBorder} 
+                  onChange={e => setLesionBorder(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 rounded-xl text-sm font-medium text-slate-800 outline-none transition-all cursor-pointer appearance-none"
+                >
+                  <option value="" disabled>Select border type...</option>
+                  <option value="well_defined_raised">Well-defined, raised</option>
+                  <option value="well_defined">Well-defined, flat</option>
+                  <option value="ill_defined">Ill-defined, diffuse</option>
+                  <option value="irregular">Irregular / jagged</option>
+                </select>
+              </div>
 
-      {/* Additional Signs */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
-        <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
-          Additional Clinical Signs
-        </h3>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Previous Treatment</label>
-            <select 
-              value={previousTreatment} 
-              onChange={e => setPreviousTreatment(e.target.value)}
-              className="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Lesion Color</label>
+                <select 
+                  value={lesionColor} 
+                  onChange={e => setLesionColor(e.target.value)}
+                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 rounded-xl text-sm font-medium text-slate-800 outline-none transition-all cursor-pointer appearance-none"
+                >
+                  <option value="" disabled>Select predominant color...</option>
+                  <option value="red">Erythematous (Red)</option>
+                  <option value="pink">Pink / Salmon</option>
+                  <option value="brown">Hyperpigmented (Brown)</option>
+                  <option value="silver_white">Silver / White</option>
+                  <option value="dark">Dark / Black</option>
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Lesion Shape</span>
+                <div className="flex gap-2 p-1.5 bg-slate-50 border border-slate-200 rounded-xl">
+                  {[
+                    { val: 'circular', label: 'Circular' },
+                    { val: 'irregular', label: 'Irregular' },
+                    { val: 'multiple_lesions', label: 'Multiple' }
+                  ].map(({ val, label }) => (
+                    <label 
+                      key={val} 
+                      className={`flex-1 flex justify-center items-center py-2 px-1 text-xs font-bold rounded-lg cursor-pointer transition-all ${lesionShape === val ? 'bg-white text-brand-primary shadow-sm border border-slate-100' : 'text-slate-500 hover:bg-slate-100'}`}
+                    >
+                      <input type="radio" name="lesionShape" className="hidden" value={val} checked={lesionShape === val} onChange={e => setLesionShape(e.target.value)} />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </div>
+            </div>
+
+            <div className="pt-6 border-t border-slate-100">
+              <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Anatomical Locations</span>
+              <div className="flex flex-wrap gap-2">
+                {locationOptions.map(loc => {
+                  const isSelected = lesionLocations.includes(loc);
+                  return (
+                    <label 
+                      key={loc} 
+                      className={`inline-flex items-center px-4 py-2 rounded-xl text-xs font-bold cursor-pointer transition-all border ${isSelected ? 'bg-brand-primary text-white border-brand-primary shadow-sm shadow-brand-primary/20' : 'bg-white text-slate-600 border-slate-200 hover:border-brand-primary/50 hover:bg-slate-50'}`}
+                    >
+                      <input 
+                        type="checkbox" 
+                        className="hidden"
+                        checked={isSelected} 
+                        onChange={() => toggleLocation(loc)} 
+                      />
+                      {loc}
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          </motion.div>
+
+          {/* Appearance & Sensation */}
+          <motion.div variants={itemVariants} className="bg-white rounded-3xl border border-slate-100 shadow-sm p-8 space-y-6">
+            <h3 className="text-base font-black text-slate-800 flex items-center gap-2.5 pb-4 border-b border-slate-100">
+              <div className="w-8 h-8 bg-emerald-50 rounded-lg flex items-center justify-center">
+                <EyeIcon className="w-4 h-4 text-emerald-500" />
+              </div>
+              Visual & Sensatory Presentation
+            </h3>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Visual Markers</span>
+                
+                {[
+                  { state: redness, setter: setRedness, label: 'Erythema (Redness)', desc: 'Noticeable redness around or on the lesion' },
+                  { state: scaling, setter: setScaling, label: 'Scaling / Flaking', desc: 'Dry, flaky, or peeling skin' },
+                  { state: ringShaped, setter: setRingShaped, label: 'Annular (Ring-shaped)', desc: 'Clear center with active border' },
+                ].map(({ state, setter, label, desc }, i) => (
+                  <label key={i} className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${state ? 'bg-brand-primary/5 border-brand-primary/30' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+                    <div className="relative flex items-center justify-center mt-0.5">
+                      <input type="checkbox" className="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded focus:ring-4 focus:ring-brand-primary/20 checked:border-brand-primary checked:bg-brand-primary transition-colors cursor-pointer" checked={state} onChange={e => setter(e.target.checked)} />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-white absolute opacity-0 peer-checked:opacity-100 pointer-events-none" />
+                    </div>
+                    <div>
+                      <span className={`block text-sm font-bold ${state ? 'text-brand-primary' : 'text-slate-700'}`}>{label}</span>
+                      <span className="block text-xs font-medium text-slate-500">{desc}</span>
+                    </div>
+                  </label>
+                ))}
+              </div>
+              
+              <div className="space-y-3">
+                <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">Sensatory Markers</span>
+                
+                {[
+                  { state: itching, setter: setItching, label: 'Pruritus (Itching)', desc: 'Patient reports urge to scratch' },
+                  { state: pain, setter: setPain, label: 'Pain / Tenderness', desc: 'Lesion is painful to touch or at rest' },
+                ].map(({ state, setter, label, desc }, i) => (
+                  <label key={i} className={`flex items-start gap-3 p-3 rounded-xl border transition-all cursor-pointer ${state ? 'bg-brand-primary/5 border-brand-primary/30' : 'bg-white border-slate-200 hover:border-slate-300'}`}>
+                    <div className="relative flex items-center justify-center mt-0.5">
+                      <input type="checkbox" className="peer appearance-none w-5 h-5 border-2 border-slate-300 rounded focus:ring-4 focus:ring-brand-primary/20 checked:border-brand-primary checked:bg-brand-primary transition-colors cursor-pointer" checked={state} onChange={e => setter(e.target.checked)} />
+                      <CheckCircle2 className="w-3.5 h-3.5 text-white absolute opacity-0 peer-checked:opacity-100 pointer-events-none" />
+                    </div>
+                    <div>
+                      <span className={`block text-sm font-bold ${state ? 'text-brand-primary' : 'text-slate-700'}`}>{label}</span>
+                      <span className="block text-xs font-medium text-slate-500">{desc}</span>
+                    </div>
+                  </label>
+                ))}
+                
+                <div className="pt-2">
+                  <span className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">Central Clearing</span>
+                  <div className="flex gap-2 p-1.5 bg-slate-50 border border-slate-200 rounded-xl">
+                    {[
+                      { val: 'yes', label: 'Present' },
+                      { val: 'no', label: 'Absent' },
+                    ].map(({ val, label }) => (
+                      <label 
+                        key={val} 
+                        className={`flex-1 flex justify-center items-center py-2 px-1 text-xs font-bold rounded-lg cursor-pointer transition-all ${centralClearing === val ? 'bg-white text-brand-primary shadow-sm border border-slate-100' : 'text-slate-500 hover:bg-slate-100'}`}
+                      >
+                        <input type="radio" name="centralClearing" className="hidden" value={val} checked={centralClearing === val} onChange={e => setCentralClearing(e.target.value)} />
+                        {label}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+
+        {/* Right Column (Sidebar inputs & submit) */}
+        <div className="lg:col-span-4 space-y-6">
+          
+          <motion.div variants={itemVariants} className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 space-y-6">
+            <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 pb-3 border-b border-slate-100">
+              <Clock className="w-4 h-4 text-brand-secondary" /> Duration & Severity
+            </h3>
+            
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Onset Duration</label>
+              <div className="flex gap-2">
+                <input 
+                  type="number" 
+                  min="1" 
+                  value={durationValue} 
+                  onChange={e => setDurationValue(Number(e.target.value))}
+                  className="w-20 px-3 py-2.5 bg-slate-50 border border-slate-200 focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 rounded-xl text-sm font-medium text-slate-800 outline-none transition-all text-center"
+                />
+                <select 
+                  value={durationUnit} 
+                  onChange={e => setDurationUnit(e.target.value)}
+                  className="flex-1 px-3 py-2.5 bg-slate-50 border border-slate-200 focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 rounded-xl text-sm font-medium text-slate-800 outline-none transition-all cursor-pointer appearance-none"
+                >
+                  <option value="days">Days</option>
+                  <option value="weeks">Weeks</option>
+                  <option value="months">Months</option>
+                  <option value="years">Years</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <div className="flex justify-between items-end">
+                <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Itch Severity</label>
+                <span className="text-lg font-black text-brand-primary">{itchSeverity}<span className="text-xs text-slate-400 font-bold">/10</span></span>
+              </div>
+              <input 
+                type="range" 
+                min="0" 
+                max="10" 
+                value={itchSeverity}
+                onChange={e => setItchSeverity(Number(e.target.value))}
+                className="w-full accent-brand-primary h-2 bg-slate-200 rounded-lg appearance-none cursor-pointer"
+              />
+              <div className="flex justify-between text-[10px] font-bold text-slate-400 uppercase">
+                <span>None (0)</span>
+                <span>Severe (10)</span>
+              </div>
+            </div>
+          </motion.div>
+
+          <motion.div variants={itemVariants} className="bg-white rounded-3xl border border-slate-100 shadow-sm p-6 space-y-6">
+            <h3 className="text-sm font-black text-slate-800 flex items-center gap-2 pb-3 border-b border-slate-100">
+              <Activity className="w-4 h-4 text-amber-500" /> Additional Details
+            </h3>
+            
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Previous Treatment</label>
+              <select 
+                value={previousTreatment} 
+                onChange={e => setPreviousTreatment(e.target.value)}
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 rounded-xl text-sm font-medium text-slate-800 outline-none transition-all cursor-pointer appearance-none"
+              >
+                <option value="none">None / Naive</option>
+                <option value="topical_steroid">Topical Corticosteroid</option>
+                <option value="antifungal_cream">Topical Antifungal</option>
+                <option value="oral_antifungal">Oral Antifungal</option>
+                <option value="antibiotic">Antibiotics</option>
+                <option value="unknown">Unknown</option>
+              </select>
+            </div>
+
+            <div className="space-y-3">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider">Nail Involvement</label>
+              <div className="flex gap-2 p-1.5 bg-slate-50 border border-slate-200 rounded-xl">
+                {[
+                  { val: 'yes', label: 'Present' },
+                  { val: 'no', label: 'Absent' },
+                ].map(({ val, label }) => (
+                  <label 
+                    key={val} 
+                    className={`flex-1 flex justify-center items-center py-2 px-1 text-xs font-bold rounded-lg cursor-pointer transition-all ${nailChanges === val ? 'bg-white text-brand-primary shadow-sm border border-slate-100' : 'text-slate-500 hover:bg-slate-100'}`}
+                  >
+                    <input type="radio" name="nailChanges" className="hidden" value={val} checked={nailChanges === val} onChange={e => setNailChanges(e.target.value)} />
+                    {label}
+                  </label>
+                ))}
+              </div>
+            </div>
+
+            <div className="space-y-3 pt-2">
+              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5">
+                <FileText className="w-3.5 h-3.5" /> Clinical Notes
+              </label>
+              <textarea 
+                value={clinicalNotes}
+                onChange={e => setClinicalNotes(e.target.value)}
+                rows="4" 
+                placeholder="Enter additional observations or patient history..."
+                className="w-full px-4 py-3 bg-slate-50 border border-slate-200 focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 rounded-xl text-sm font-medium text-slate-800 outline-none transition-all resize-none"
+              ></textarea>
+            </div>
+          </motion.div>
+
+          <AnimatePresence>
+            {error && (
+              <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
+                <div className="bg-red-50 border border-red-200 p-4 rounded-2xl flex items-start gap-3 shadow-sm">
+                  <AlertCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+                  <p className="text-sm font-bold text-red-700 leading-relaxed">{error}</p>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* Action Buttons (Sticky on mobile, relative on desktop) */}
+          <motion.div variants={itemVariants} className="fixed bottom-0 left-0 right-0 p-4 bg-white/80 backdrop-blur-xl border-t border-slate-200 z-50 lg:relative lg:p-0 lg:bg-transparent lg:backdrop-blur-none lg:border-t-0 lg:z-auto shadow-[0_-10px_40px_-15px_rgba(0,0,0,0.1)] lg:shadow-none flex items-center justify-end gap-3">
+            <button 
+              onClick={handleSubmit}
+              disabled={isSubmitting}
+              className="w-full lg:w-auto px-8 py-4 bg-brand-primary hover:bg-stellarDark text-white text-sm font-bold rounded-2xl flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-xl hover:-translate-y-0.5 active:translate-y-0 disabled:opacity-70 disabled:pointer-events-none group"
             >
-              <option value="none">None</option>
-              <option value="topical_steroid">Topical steroid</option>
-              <option value="antifungal_cream">Antifungal cream</option>
-              <option value="oral_antifungal">Oral antifungal</option>
-              <option value="unknown">Unknown</option>
-            </select>
-          </div>
-          <div className="space-y-2">
-            <span className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider">Nail Changes</span>
-            <div className="bg-slate-50/50 border border-slate-200 rounded-xl p-3 flex gap-6">
-              {['yes', 'no'].map(val => (
-                <label key={val} className="text-xs font-bold">
-                  <input type="radio" name="nailChanges" value={val} checked={nailChanges === val} onChange={e => setNailChanges(e.target.value)} className="mr-1.5" />
-                  {val.toUpperCase()}
-                </label>
-              ))}
-            </div>
-          </div>
+              <span>{isSubmitting ? 'Analyzing Data...' : 'Submit for AI Analysis'}</span>
+              {!isSubmitting && <Sparkles className="w-4 h-4 group-hover:rotate-12 transition-transform" />}
+              {isSubmitting && <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>}
+            </button>
+          </motion.div>
+          
         </div>
       </div>
-
-      {/* Notes */}
-      <div className="bg-white rounded-2xl border border-slate-200/60 shadow-sm p-6 space-y-4">
-        <h3 className="text-sm font-black text-slate-800 pb-2 border-b border-slate-100">Additional Notes</h3>
-        <textarea 
-          value={clinicalNotes}
-          onChange={e => setClinicalNotes(e.target.value)}
-          rows="4" 
-          placeholder="Enter additional observations"
-          className="w-full text-xs p-3 rounded-xl border border-slate-200 resize-none focus:outline-none focus:border-stellarNavy"
-        ></textarea>
-      </div>
-
-      {error && (
-        <div className="rounded-xl p-4 text-sm font-bold bg-red-50 text-red-700 border border-red-200">
-          {error}
-        </div>
-      )}
-
-      {/* Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-4">
-        <Link 
-          to="/dashboard"
-          className="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 text-xs font-bold rounded-xl hover:bg-slate-50 transition-colors"
-        >
-          Back
-        </Link>
-        <button 
-          onClick={handleSubmit}
-          disabled={isSubmitting}
-          className="px-6 py-2.5 bg-stellarNavy hover:bg-stellarDark text-white text-xs font-bold rounded-xl flex items-center gap-2 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-        >
-          <span>{isSubmitting ? 'Analysing Symptoms...' : 'Submit for AI Analysis'}</span>
-          <Sparkles className="w-3.5 h-3.5" />
-        </button>
-      </div>
-    </div>
+    </motion.div>
   );
 }
