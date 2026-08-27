@@ -1,12 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>StellarX - Enter Observed Symptoms</title>
 
@@ -34,28 +32,17 @@
   <!-- Navigation -->
   <nav class="bg-white border-b border-slate-100 px-6 md:px-16 py-4 flex items-center justify-between shadow-sm">
 
-    <div
-      class="flex items-center space-x-2 cursor-pointer"
-      onclick="window.location.href='dashboard.html'"
-    >
-      <i
-        data-lucide="layers"
-        class="w-6 h-6 text-[#114a72]"
-      ></i>
+    <div class="flex items-center space-x-2 cursor-pointer" onclick="window.location.href='dashboard.html'">
+      <i data-lucide="layers" class="w-6 h-6 text-[#114a72]"></i>
 
       <span class="text-xl font-black tracking-tight text-[#114a72]">
         StellarX
       </span>
     </div>
 
-    <a
-      href="profile.html"
-      class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-600"
-    >
-      <i
-        data-lucide="user"
-        class="w-4 h-4"
-      ></i>
+    <a href="profile.html"
+      class="w-8 h-8 bg-slate-100 hover:bg-slate-200 rounded-full flex items-center justify-center text-slate-600">
+      <i data-lucide="user" class="w-4 h-4"></i>
     </a>
 
   </nav>
@@ -82,45 +69,28 @@
 
         <h3 class="text-sm font-black text-slate-800 flex items-center gap-2">
 
-          <i
-            data-lucide="image"
-            class="w-4 h-4 text-[#114a72]"
-          ></i>
+          <i data-lucide="image" class="w-4 h-4 text-[#114a72]"></i>
 
           Upload Clinical Images
         </h3>
 
-        <span
-          id="imageCountDisplay"
-          class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full"
-        >
+        <span id="imageCountDisplay" class="text-xs font-bold text-slate-500 bg-slate-100 px-3 py-1 rounded-full">
           0 / 5
         </span>
 
       </div>
 
-      <div class="border-2 border-dashed border-slate-200 hover:border-[#3b93d7] rounded-xl bg-slate-50/50 p-6 text-center cursor-pointer transition-colors relative group">
+      <div
+        class="border-2 border-dashed border-slate-200 hover:border-[#3b93d7] rounded-xl bg-slate-50/50 p-6 text-center cursor-pointer transition-colors relative group">
 
-        <input
-          type="file"
-          id="clinicalImageInput"
-          class="absolute inset-0 opacity-0 cursor-pointer"
-          accept="image/jpeg,image/png,image/webp"
-          multiple
-          onchange="handleImagePreview(this)"
-        >
+        <input type="file" id="clinicalImageInput" class="absolute inset-0 opacity-0 cursor-pointer"
+          accept="image/jpeg,image/png,image/webp" multiple onchange="handleImagePreview(this)">
 
-        <div
-          id="uploadPromptZone"
-          class="space-y-2"
-        >
+        <div id="uploadPromptZone" class="space-y-2">
 
           <div class="w-10 h-10 bg-sky-50 text-[#114a72] rounded-full flex items-center justify-center mx-auto">
 
-            <i
-              data-lucide="upload-cloud"
-              class="w-5 h-5"
-            ></i>
+            <i data-lucide="upload-cloud" class="w-5 h-5"></i>
 
           </div>
 
@@ -137,21 +107,12 @@
 
         </div>
 
-        <div
-          id="imagePreviewContainer"
-          class="hidden flex flex-wrap gap-3 justify-center mt-3"
-        ></div>
+        <div id="imagePreviewContainer" class="hidden flex flex-wrap gap-3 justify-center mt-3"></div>
 
       </div>
 
-      <div
-        id="imageValidationMessage"
-        class="hidden text-xs font-bold text-red-500 flex items-center gap-2"
-      >
-        <i
-          data-lucide="alert-circle"
-          class="w-4 h-4"
-        ></i>
+      <div id="imageValidationMessage" class="hidden text-xs font-bold text-red-500 flex items-center gap-2">
+        <i data-lucide="alert-circle" class="w-4 h-4"></i>
 
         <span id="imageValidationText">
           Maximum 5 images allowed.
@@ -159,7 +120,8 @@
       </div>
 
       <p class="text-[10px] text-slate-400">
-        The current weighted symptom model does not analyse the image. Images are retained for later image-model integration.
+        The current weighted symptom model does not analyse the image. Images are retained for later image-model
+        integration.
       </p>
 
     </div>
@@ -171,10 +133,7 @@
 
         <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
 
-          <i
-            data-lucide="clock"
-            class="w-4 h-4 text-[#114a72]"
-          ></i>
+          <i data-lucide="clock" class="w-4 h-4 text-[#114a72]"></i>
 
           Duration & Severity
         </h3>
@@ -185,18 +144,10 @@
 
         <div class="flex gap-3">
 
-          <input
-            type="number"
-            id="durationValue"
-            min="1"
-            value="1"
-            class="w-1/3 px-3 py-2 border border-slate-200 rounded-xl text-sm"
-          >
+          <input type="number" id="durationValue" min="1" value="1"
+            class="w-1/3 px-3 py-2 border border-slate-200 rounded-xl text-sm">
 
-          <select
-            id="durationUnit"
-            class="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
-          >
+          <select id="durationUnit" class="flex-1 px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white">
             <option value="days">Days</option>
             <option value="weeks" selected>Weeks</option>
             <option value="months">Months</option>
@@ -218,24 +169,14 @@
             Mild
           </span>
 
-          <input
-            type="range"
-            id="itchSeverity"
-            min="1"
-            max="10"
-            value="5"
-            class="flex-1 accent-[#114a72]"
-            oninput="document.getElementById('itchDisplay').textContent = this.value"
-          >
+          <input type="range" id="itchSeverity" min="1" max="10" value="5" class="flex-1 accent-[#114a72]"
+            oninput="document.getElementById('itchDisplay').textContent = this.value">
 
           <span class="text-[10px] font-bold text-slate-400">
             Severe
           </span>
 
-          <span
-            id="itchDisplay"
-            class="text-sm font-black text-[#114a72] w-6 text-center"
-          >
+          <span id="itchDisplay" class="text-sm font-black text-[#114a72] w-6 text-center">
             5
           </span>
 
@@ -252,10 +193,7 @@
 
         <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
 
-          <i
-            data-lucide="eye"
-            class="w-4 h-4 text-[#114a72]"
-          ></i>
+          <i data-lucide="eye" class="w-4 h-4 text-[#114a72]"></i>
 
           Visual Appearance
         </h3>
@@ -264,33 +202,21 @@
 
           <label class="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
 
-            <input
-              type="checkbox"
-              id="sympRedness"
-              class="w-4 h-4"
-            >
+            <input type="checkbox" id="sympRedness" class="w-4 h-4">
 
             Redness
           </label>
 
           <label class="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
 
-            <input
-              type="checkbox"
-              id="sympScaling"
-              class="w-4 h-4"
-            >
+            <input type="checkbox" id="sympScaling" class="w-4 h-4">
 
             Scaling
           </label>
 
           <label class="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
 
-            <input
-              type="checkbox"
-              id="sympRing"
-              class="w-4 h-4"
-            >
+            <input type="checkbox" id="sympRing" class="w-4 h-4">
 
             Ring-shaped lesion
           </label>
@@ -303,10 +229,7 @@
 
         <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
 
-          <i
-            data-lucide="activity"
-            class="w-4 h-4 text-[#114a72]"
-          ></i>
+          <i data-lucide="activity" class="w-4 h-4 text-[#114a72]"></i>
 
           Sensation
         </h3>
@@ -315,22 +238,14 @@
 
           <label class="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
 
-            <input
-              type="checkbox"
-              id="sympItching"
-              class="w-4 h-4"
-            >
+            <input type="checkbox" id="sympItching" class="w-4 h-4">
 
             Itching
           </label>
 
           <label class="flex items-center gap-3 cursor-pointer text-xs font-bold text-slate-700">
 
-            <input
-              type="checkbox"
-              id="sympPain"
-              class="w-4 h-4"
-            >
+            <input type="checkbox" id="sympPain" class="w-4 h-4">
 
             Pain / Tenderness
           </label>
@@ -346,10 +261,7 @@
 
       <h3 class="text-sm font-black text-slate-800 flex items-center gap-2 pb-2 border-b border-slate-100">
 
-        <i
-          data-lucide="scan"
-          class="w-4 h-4 text-[#114a72]"
-        ></i>
+        <i data-lucide="scan" class="w-4 h-4 text-[#114a72]"></i>
 
         Lesion Characteristics
       </h3>
@@ -362,15 +274,8 @@
             Lesion Size (cm)
           </label>
 
-          <input
-            type="number"
-            id="lesionSizeCm"
-            min="0.1"
-            max="20"
-            step="0.5"
-            value="2.5"
-            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm"
-          >
+          <input type="number" id="lesionSizeCm" min="0.1" max="20" step="0.5" value="2.5"
+            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm">
 
         </div>
 
@@ -380,10 +285,7 @@
             Lesion Border
           </label>
 
-          <select
-            id="lesionBorder"
-            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
-          >
+          <select id="lesionBorder" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white">
             <option value="" disabled selected>Select border...</option>
             <option value="well_defined_raised">
               Well-defined, raised
@@ -414,33 +316,21 @@
 
             <label class="flex items-center gap-2.5 text-xs font-bold text-slate-700">
 
-              <input
-                type="radio"
-                name="lesionShape"
-                value="circular"
-              >
+              <input type="radio" name="lesionShape" value="circular">
 
               Circular
             </label>
 
             <label class="flex items-center gap-2.5 text-xs font-bold text-slate-700">
 
-              <input
-                type="radio"
-                name="lesionShape"
-                value="irregular"
-              >
+              <input type="radio" name="lesionShape" value="irregular">
 
               Irregular
             </label>
 
             <label class="flex items-center gap-2.5 text-xs font-bold text-slate-700">
 
-              <input
-                type="radio"
-                name="lesionShape"
-                value="multiple_lesions"
-              >
+              <input type="radio" name="lesionShape" value="multiple_lesions">
 
               Multiple lesions
             </label>
@@ -463,22 +353,14 @@
 
             <label class="flex items-center gap-2 text-xs font-bold text-slate-700">
 
-              <input
-                type="radio"
-                name="centralClearing"
-                value="yes"
-              >
+              <input type="radio" name="centralClearing" value="yes">
 
               Yes
             </label>
 
             <label class="flex items-center gap-2 text-xs font-bold text-slate-700">
 
-              <input
-                type="radio"
-                name="centralClearing"
-                value="no"
-              >
+              <input type="radio" name="centralClearing" value="no">
 
               No
             </label>
@@ -493,10 +375,7 @@
             Lesion Color
           </label>
 
-          <select
-            id="lesionColor"
-            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
-          >
+          <select id="lesionColor" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white">
             <option value="" disabled selected>Select color...</option>
             <option value="red">Red</option>
             <option value="pink">Pink</option>
@@ -590,10 +469,7 @@
             Previous Treatment
           </label>
 
-          <select
-            id="previousTreatment"
-            class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
-          >
+          <select id="previousTreatment" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white">
             <option value="none">None</option>
             <option value="topical_steroid">
               Topical steroid
@@ -621,22 +497,14 @@
 
             <label class="text-xs font-bold">
 
-              <input
-                type="radio"
-                name="nailChanges"
-                value="yes"
-              >
+              <input type="radio" name="nailChanges" value="yes">
 
               Yes
             </label>
 
             <label class="text-xs font-bold">
 
-              <input
-                type="radio"
-                name="nailChanges"
-                value="no"
-              >
+              <input type="radio" name="nailChanges" value="no">
 
               No
             </label>
@@ -656,46 +524,29 @@
         Additional Notes
       </h3>
 
-      <textarea
-        id="clinicalNotes"
-        rows="4"
-        placeholder="Enter additional observations"
-        class="w-full text-xs p-3 rounded-xl border border-slate-200 resize-none"
-      ></textarea>
+      <textarea id="clinicalNotes" rows="4" placeholder="Enter additional observations"
+        class="w-full text-xs p-3 rounded-xl border border-slate-200 resize-none"></textarea>
 
     </div>
 
     <!-- Submission message -->
-    <div
-      id="submissionMessage"
-      class="hidden rounded-xl p-4 text-sm font-bold"
-    ></div>
+    <div id="submissionMessage" class="hidden rounded-xl p-4 text-sm font-bold"></div>
 
     <!-- Buttons -->
     <div class="flex items-center justify-end gap-3 pt-4">
 
-      <button
-        type="button"
-        onclick="window.location.href='dashboard.html'"
-        class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 text-xs font-bold rounded-xl"
-      >
+      <button type="button" onclick="window.location.href='dashboard.html'"
+        class="px-6 py-2.5 bg-white border border-slate-300 text-slate-700 text-xs font-bold rounded-xl">
         Back
       </button>
 
-      <button
-        type="button"
-        id="submitAnalysisButton"
-        onclick="handleAnalysisSubmission()"
-        class="px-6 py-2.5 bg-[#114a72] hover:bg-[#0c3d5e] text-white text-xs font-bold rounded-xl flex items-center gap-2"
-      >
+      <button type="button" id="submitAnalysisButton" onclick="handleAnalysisSubmission()"
+        class="px-6 py-2.5 bg-[#114a72] hover:bg-[#0c3d5e] text-white text-xs font-bold rounded-xl flex items-center gap-2">
         <span id="submitButtonText">
           Submit for AI Analysis
         </span>
 
-        <i
-          data-lucide="sparkles"
-          class="w-3.5 h-3.5"
-        ></i>
+        <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
       </button>
 
     </div>
@@ -934,14 +785,6 @@
     }
 
     function validateSymptomInput(symptoms) {
-      if (uploadedImages.length === 0) {
-        showSubmissionMessage(
-          'Please upload at least one clinical image for AI analysis.',
-          'error'
-        );
-        return false;
-      }
-
       const hasMajorSymptom =
         symptoms.redness ||
         symptoms.scaling ||
@@ -1178,4 +1021,5 @@
   </script>
 
 </body>
+
 </html>

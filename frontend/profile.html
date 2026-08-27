@@ -203,7 +203,7 @@
       isEditMode = true;
       document.getElementById('btnText').innerText = "Viewing Mode";
       
-      const fields = ['profileName', 'profilePosition', 'profileEmail', 'profilePhone'];
+      const fields = ['profileName', 'profilePosition', 'profilePhone'];
       fields.forEach(id => {
         const el = document.getElementById(id);
         el.removeAttribute('disabled');
@@ -218,7 +218,7 @@
       isEditMode = false;
       document.getElementById('btnText').innerText = "Edit Profile";
       
-      const fields = ['profileName', 'profilePosition', 'profileEmail', 'profilePhone'];
+      const fields = ['profileName', 'profilePosition', 'profilePhone'];
       fields.forEach(id => {
         const el = document.getElementById(id);
         el.setAttribute('disabled', 'true');
@@ -235,19 +235,17 @@
       
       const newName = document.getElementById('profileName').value.trim();
       const newPosition = document.getElementById('profilePosition').value.trim();
-      const newEmail = document.getElementById('profileEmail').value.trim().toLowerCase();
       const newPhone = document.getElementById('profilePhone').value.trim();
 
       const oldEmail = currentUser.email;
       currentUser.name = newName;
       currentUser.position = newPosition;
-      currentUser.email = newEmail;
       currentUser.phone = newPhone;
 
       let usersList = JSON.parse(localStorage.getItem('stellarX_users_list')) || [];
       usersList = usersList.map(user => {
         if(user.email === oldEmail) {
-          return { ...user, name: newName, position: newPosition, email: newEmail, phone: newPhone };
+          return { ...user, name: newName, position: newPosition, phone: newPhone };
         }
         return user;
       });
