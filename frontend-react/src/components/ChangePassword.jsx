@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Layers, Lock } from 'lucide-react';
+import { Layers, Lock, ArrowLeft, ShieldCheck, CheckCircle2, XCircle, KeyRound } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api';
 
 export default function ChangePassword() {
@@ -58,103 +59,149 @@ export default function ChangePassword() {
   };
 
   return (
-    <div className="bg-bgGray min-h-screen flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl shadow-xl max-w-md w-full p-8 space-y-6">
+    <div className="bg-bgGray min-h-screen flex items-center justify-center p-4 py-12 relative overflow-hidden">
+      {/* Background decoration */}
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-brand-primary/5 rounded-full blur-[100px] pointer-events-none" />
+      
+      <motion.div 
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="bg-white rounded-[2rem] shadow-[0_8px_40px_rgb(0,0,0,0.08)] max-w-md w-full p-8 md:p-10 space-y-8 relative z-10 border border-slate-100"
+      >
         {/* Header */}
-        <div className="text-center">
-          <div className="flex items-center justify-center space-x-2 mb-4">
-            <Layers className="w-8 h-8 text-stellarNavy" />
-            <span className="text-2xl font-black tracking-wide text-stellarNavy">StellarX</span>
+        <div className="text-center space-y-4">
+          <div className="w-16 h-16 bg-brand-primary/10 rounded-2xl flex items-center justify-center mx-auto text-brand-primary mb-2">
+            <KeyRound className="w-8 h-8" />
           </div>
-          <h1 className="text-2xl font-black text-slate-800">Change Password</h1>
-          <p className="text-sm text-slate-500 mt-1">Enter your current password and set a new one.</p>
+          <div>
+            <h1 className="text-2xl font-black text-slate-800 tracking-tight">Change Password</h1>
+            <p className="text-sm font-medium text-slate-500 mt-2 leading-relaxed">
+              Ensure your account stays secure by using a strong, unique password.
+            </p>
+          </div>
         </div>
 
         {/* Messages */}
-        {success && (
-          <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg text-sm">
-            ✅ {success} Redirecting to profile...
-          </div>
-        )}
-        {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg text-sm">
-            ❌ {error}
-          </div>
-        )}
+        <AnimatePresence mode="wait">
+          {success && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }} 
+              animate={{ opacity: 1, height: 'auto' }} 
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-emerald-50 border border-emerald-100 p-4 rounded-xl flex items-start gap-3"
+            >
+              <CheckCircle2 className="w-5 h-5 text-emerald-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-bold text-emerald-800">Success</p>
+                <p className="text-xs font-medium text-emerald-600 mt-1">{success} Redirecting...</p>
+              </div>
+            </motion.div>
+          )}
+          
+          {error && (
+            <motion.div 
+              initial={{ opacity: 0, height: 0 }} 
+              animate={{ opacity: 1, height: 'auto' }} 
+              exit={{ opacity: 0, height: 0 }}
+              className="bg-red-50 border border-red-100 p-4 rounded-xl flex items-start gap-3"
+            >
+              <XCircle className="w-5 h-5 text-red-500 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-bold text-red-800">Error</p>
+                <p className="text-xs font-medium text-red-600 mt-1">{error}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Current Password</label>
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider pl-1">Current Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+              <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
               <input
                 type="password"
                 required
                 value={currentPassword}
                 onChange={e => setCurrentPassword(e.target.value)}
                 placeholder="Enter current password"
-                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-500 transition-colors"
+                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all"
               />
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">New Password</label>
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider pl-1">New Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+              <Lock className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
               <input
                 type="password"
                 required
                 value={newPassword}
                 onChange={e => setNewPassword(e.target.value)}
                 placeholder="Enter new password"
-                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-500 transition-colors"
+                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all"
               />
             </div>
           </div>
 
-          <div className="space-y-1">
-            <label className="text-xs font-bold text-slate-700 uppercase tracking-wider">Confirm New Password</label>
+          <div className="space-y-2">
+            <label className="text-xs font-bold text-slate-500 uppercase tracking-wider pl-1">Confirm New Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-3.5" />
+              <ShieldCheck className="w-5 h-5 text-slate-400 absolute left-4 top-3.5" />
               <input
                 type="password"
                 required
                 value={confirmPassword}
                 onChange={e => setConfirmPassword(e.target.value)}
                 placeholder="Confirm new password"
-                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:border-sky-500 transition-colors"
+                className="w-full pl-12 pr-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium focus:bg-white focus:outline-none focus:border-brand-primary focus:ring-4 focus:ring-brand-primary/10 transition-all"
               />
             </div>
           </div>
 
-          <div className="text-xs text-slate-500 space-y-1">
-            <p className="font-bold">Password must contain:</p>
-            <ul className="list-disc pl-5 space-y-0.5">
-              <li className={reqLength ? 'text-green-500' : 'text-slate-500'}>At least 8 characters</li>
-              <li className={reqUppercase ? 'text-green-500' : 'text-slate-500'}>At least one uppercase letter</li>
-              <li className={reqLowercase ? 'text-green-500' : 'text-slate-500'}>At least one lowercase letter</li>
-              <li className={reqNumber ? 'text-green-500' : 'text-slate-500'}>At least one number</li>
-              <li className={reqSpecial ? 'text-green-500' : 'text-slate-500'}>At least one special character (!@#$%^&*)</li>
+          <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 space-y-2">
+            <p className="text-xs font-bold text-slate-700">Password Requirements:</p>
+            <ul className="text-[11px] font-medium space-y-1.5 grid grid-cols-2 gap-x-2">
+              <li className={`flex items-center gap-1.5 ${reqLength ? 'text-emerald-600' : 'text-slate-500'}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${reqLength ? 'bg-emerald-500' : 'bg-slate-300'}`} /> 8+ chars
+              </li>
+              <li className={`flex items-center gap-1.5 ${reqUppercase ? 'text-emerald-600' : 'text-slate-500'}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${reqUppercase ? 'bg-emerald-500' : 'bg-slate-300'}`} /> Uppercase
+              </li>
+              <li className={`flex items-center gap-1.5 ${reqLowercase ? 'text-emerald-600' : 'text-slate-500'}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${reqLowercase ? 'bg-emerald-500' : 'bg-slate-300'}`} /> Lowercase
+              </li>
+              <li className={`flex items-center gap-1.5 ${reqNumber ? 'text-emerald-600' : 'text-slate-500'}`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${reqNumber ? 'bg-emerald-500' : 'bg-slate-300'}`} /> Number
+              </li>
+              <li className={`flex items-center gap-1.5 ${reqSpecial ? 'text-emerald-600' : 'text-slate-500'} col-span-2 mt-1`}>
+                <div className={`w-1.5 h-1.5 rounded-full ${reqSpecial ? 'bg-emerald-500' : 'bg-slate-300'}`} /> Special character (!@#$...)
+              </li>
             </ul>
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full py-3.5 bg-stellarNavy hover:bg-stellarDark text-white text-sm font-bold rounded-xl transition-colors shadow-md active:scale-[0.99] disabled:opacity-70 disabled:cursor-not-allowed"
+            className="w-full py-4 bg-brand-primary hover:bg-stellarDark text-white text-sm font-bold rounded-xl transition-all shadow-md hover:shadow-lg active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed disabled:hover:scale-100 mt-2"
           >
-            {isSubmitting ? 'Changing...' : 'Change Password'}
+            {isSubmitting ? (
+              <span className="flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                Updating...
+              </span>
+            ) : 'Update Password'}
           </button>
         </form>
 
-        <div className="text-center text-xs text-slate-500 font-medium">
-          <Link to="/profile" className="text-stellarNavy font-bold hover:underline">
-            Back to Profile
+        <div className="text-center pt-2 border-t border-slate-100">
+          <Link to="/profile" className="inline-flex items-center gap-1.5 text-sm font-bold text-slate-500 hover:text-brand-primary transition-colors">
+            <ArrowLeft className="w-4 h-4" /> Back to Profile
           </Link>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 }
