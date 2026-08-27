@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Layers, Home, Sparkles, AlertCircle, RefreshCw, Save, Activity, FolderHeart, ShieldCheck } from 'lucide-react';
+import { Layers, Home, Sparkles, AlertCircle, RefreshCw, Save, Activity, FolderHeart, ShieldCheck, Image } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api';
 
