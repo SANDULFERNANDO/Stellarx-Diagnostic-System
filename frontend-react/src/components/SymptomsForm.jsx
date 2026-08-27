@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { Image, UploadCloud, AlertCircle, Clock, Eye as EyeIcon, Activity, Scan, Sparkles, ArrowLeft, HeartPulse, ShieldAlert, CheckCircle2, ChevronRight, FileText } from 'lucide-react';
+import { Image, UploadCloud, AlertCircle, Clock, Eye as EyeIcon, Activity, Scan, Sparkles, ArrowLeft, HeartPulse, ShieldAlert, CheckCircle2, ChevronRight, FileText, Plus } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { api } from '../services/api';
 
