@@ -384,6 +384,7 @@
             id="lesionBorder"
             class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
           >
+            <option value="" disabled selected>Select border...</option>
             <option value="well_defined_raised">
               Well-defined, raised
             </option>
@@ -417,7 +418,6 @@
                 type="radio"
                 name="lesionShape"
                 value="circular"
-                checked
               >
 
               Circular
@@ -478,7 +478,6 @@
                 type="radio"
                 name="centralClearing"
                 value="no"
-                checked
               >
 
               No
@@ -498,6 +497,7 @@
             id="lesionColor"
             class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm bg-white"
           >
+            <option value="" disabled selected>Select color...</option>
             <option value="red">Red</option>
             <option value="pink">Pink</option>
             <option value="brown">Brown</option>
@@ -636,7 +636,6 @@
                 type="radio"
                 name="nailChanges"
                 value="no"
-                checked
               >
 
               No
@@ -935,6 +934,14 @@
     }
 
     function validateSymptomInput(symptoms) {
+      if (uploadedImages.length === 0) {
+        showSubmissionMessage(
+          'Please upload at least one clinical image for AI analysis.',
+          'error'
+        );
+        return false;
+      }
+
       const hasMajorSymptom =
         symptoms.redness ||
         symptoms.scaling ||
@@ -942,7 +949,10 @@
         symptoms.itching ||
         symptoms.pain ||
         symptoms.central_clearing ||
-        symptoms.nail_changes;
+        symptoms.nail_changes ||
+        symptoms.lesion_border ||
+        symptoms.lesion_color ||
+        symptoms.lesion_shape;
 
       if (!hasMajorSymptom) {
         showSubmissionMessage(
