@@ -129,6 +129,28 @@ class SymptomResponse(BaseModel):
 
 
 # =====================================================
+# ANALYSIS RESULT SCHEMAS
+# =====================================================
+
+class AnalysisResultResponse(BaseModel):
+    id: str
+    case_id: str
+    symptom_diagnosis: str
+    symptom_confidence: float
+    symptom_probabilities: str
+    image_diagnosis: Optional[str] = None
+    image_confidence: Optional[float] = None
+    image_probabilities: Optional[str] = None
+    final_diagnosis: str
+    final_confidence: float
+    final_probabilities: str
+    created_at: datetime
+    updated_at: datetime
+
+    class Config:
+        from_attributes = True
+
+# =====================================================
 # REBUILD (fixes Pydantic forward-reference issues)
 # =====================================================
 
@@ -136,3 +158,4 @@ SymptomCreate.model_rebuild()
 SymptomResponse.model_rebuild()
 CaseCreate.model_rebuild()
 CaseResponse.model_rebuild()
+AnalysisResultResponse.model_rebuild()

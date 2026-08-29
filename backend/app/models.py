@@ -111,3 +111,33 @@ class Symptom(Base):
     # Audit
     created_at = Column(DateTime, server_default=func.now())
     updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())
+
+
+# =====================================================
+# HYBRID AI SYSTEM (ANALYSIS RESULTS)
+# =====================================================
+
+class AnalysisResult(Base):
+    __tablename__ = "analysis_results"
+    
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    case_id = Column(String(36), nullable=False, unique=True, index=True)
+    
+    # Symptom Model Outputs
+    symptom_diagnosis = Column(String(100), nullable=False)
+    symptom_confidence = Column(Float, nullable=False)
+    symptom_probabilities = Column(Text, nullable=False) # JSON encoded
+    
+    # Image Model Outputs (Nullable until image model is fully deployed)
+    image_diagnosis = Column(String(100), nullable=True)
+    image_confidence = Column(Float, nullable=True)
+    image_probabilities = Column(Text, nullable=True) # JSON encoded
+    
+    # Fused Final Outputs
+    final_diagnosis = Column(String(100), nullable=False)
+    final_confidence = Column(Float, nullable=False)
+    final_probabilities = Column(Text, nullable=False) # JSON encoded
+    
+    # Audit
+    created_at = Column(DateTime, server_default=func.now())
+    updated_at = Column(DateTime, server_default=func.now(), onupdate=func.now())

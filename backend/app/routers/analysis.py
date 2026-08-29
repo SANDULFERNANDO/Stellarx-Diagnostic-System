@@ -6,8 +6,10 @@ from sqlalchemy.orm import Session
 
 from app.auth_utils import get_current_user
 from app.database import get_db
-from app.models import HealthcareWorker, PatientCase, Symptom
+from app.models import HealthcareWorker, PatientCase, Symptom, AnalysisResult
 from app.services.symptom_scoring import analyse_symptoms
+from app.services.hybrid_scoring import mock_image_prediction, fuse_predictions
+import json
 
 # Configure module logger
 logger = logging.getLogger(__name__)
@@ -121,26 +123,79 @@ def run_symptom_analysis(
     )
 
     # ------------------------------------------------------------------
-    # Step 3: Execute the symptom scoring model
+    # Step 3: Execute the hybrid scoring model
     # ------------------------------------------------------------------
     try:
-        result = analyse_symptoms(symptom)
+        # 3a. Run Symptom Model
+        symptom_result = analyse_symptoms(symptom)
+        
+        # Convert symptom ranked_conditions to a probability dict
+        symptom_probs = {
+            item["condition"]: item["percentage"] 
+            for item in symptom_result.get("ranked_conditions", [])
+        }
+        
+        # 3b. Run Mock Image Model
+        image_probs = mock_image_prediction(case_id)
+        
+        # 3c. Fuse Predictions
+        fusion_result = fuse_predictions(symptom_probs, image_probs)
+        
+        final_probs = fusion_result["final_probabilities"]
+        
+        # 3d. Create Ranked Conditions for the Frontend (using Fused Probs)
+        ranked_conditions = [
+            {"condition": k, "percentage": v}
+            for k, v in sorted(final_probs.items(), key=lambda item: item[1], reverse=True)
+        ]
+        
         logger.info(
-            f"Symptom analysis completed for case {case_id}. "
-            f"Top condition: {result['ranked_conditions'][0]['condition']} "
-            f"({result['ranked_conditions'][0]['percentage']}%)"
+            f"Hybrid analysis completed for case {case_id}. "
+            f"Top condition: {fusion_result['final_diagnosis']} "
+            f"({fusion_result['final_confidence']}%)"
         )
+        
+        # 3e. Save to Database
+        # Check if one already exists
+        existing_result = db.query(AnalysisResult).filter(AnalysisResult.case_id == patient_case.id).first()
+        
+        if existing_result:
+            existing_result.symptom_diagnosis = symptom_result['ranked_conditions'][0]['condition']
+            existing_result.symptom_confidence = symptom_result['ranked_conditions'][0]['percentage']
+            existing_result.symptom_probabilities = json.dumps(symptom_probs)
+            existing_result.image_diagnosis = max(image_probs.items(), key=lambda x: x[1])[0]
+            existing_result.image_confidence = max(image_probs.items(), key=lambda x: x[1])[1]
+            existing_result.image_probabilities = json.dumps(image_probs)
+            existing_result.final_diagnosis = fusion_result["final_diagnosis"]
+            existing_result.final_confidence = fusion_result["final_confidence"]
+            existing_result.final_probabilities = json.dumps(final_probs)
+        else:
+            new_result = AnalysisResult(
+                case_id=patient_case.id,
+                symptom_diagnosis=symptom_result['ranked_conditions'][0]['condition'],
+                symptom_confidence=symptom_result['ranked_conditions'][0]['percentage'],
+                symptom_probabilities=json.dumps(symptom_probs),
+                image_diagnosis=max(image_probs.items(), key=lambda x: x[1])[0],
+                image_confidence=max(image_probs.items(), key=lambda x: x[1])[1],
+                image_probabilities=json.dumps(image_probs),
+                final_diagnosis=fusion_result["final_diagnosis"],
+                final_confidence=fusion_result["final_confidence"],
+                final_probabilities=json.dumps(final_probs)
+            )
+            db.add(new_result)
+        
+        db.commit()
 
     except Exception as e:
         logger.error(
-            f"Symptom analysis failed for case {case_id}: {str(e)}",
+            f"Analysis failed for case {case_id}: {str(e)}",
             exc_info=True,
         )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail={
                 "error": "Analysis failed",
-                "message": "The symptom scoring model encountered an internal error.",
+                "message": "The hybrid scoring model encountered an internal error.",
                 "case_id": case_id,
                 "technical_details": str(e) if logger.isEnabledFor(logging.DEBUG) else None,
             },
@@ -151,12 +206,18 @@ def run_symptom_analysis(
     # ------------------------------------------------------------------
     response = {
         "case_id": case_id,
-        "analysis_type": result.get("analysis_type", "weighted_symptom_decision_support"),
-        "ranked_conditions": result.get("ranked_conditions", []),
-        "raw_scores": result.get("raw_scores", {}),
-        "selected_features": result.get("selected_features", []),
+        "analysis_type": "hybrid_symptom_image_fusion",
+        "ranked_conditions": ranked_conditions,
+        "raw_scores": symptom_result.get("raw_scores", {}),
+        "selected_features": symptom_result.get("selected_features", []),
+        "hybrid_details": {
+            "symptom_probabilities": symptom_probs,
+            "image_probabilities": image_probs,
+            "final_probabilities": final_probs,
+            "final_diagnosis": fusion_result["final_diagnosis"]
+        },
         "metadata": {
-            "model_version": "v2.0",
+            "model_version": "v3.0-hybrid-beta",
         },
         "disclaimer": (
             "This is an AI-assisted decision support tool based on weighted clinical criteria. "
@@ -177,7 +238,7 @@ def run_symptom_analysis(
     "/",
     status_code=status.HTTP_200_OK,
     summary="Get Analysis Results",
-    description="Retrieve the last symptom analysis result for a case.",
+    description="Retrieve the last analysis result for a case from the database.",
 )
 def get_analysis_result(
     case_id: str,
@@ -185,9 +246,39 @@ def get_analysis_result(
     current_user: HealthcareWorker = Depends(get_current_user),
 ) -> Dict[str, Any]:
     """
-    Fetch the most recent symptom analysis result for a case.
-
-    Currently, this re-runs the analysis. In the future, you can store
-    results in an `analysis_results` table and query that instead.
+    Fetch the most recent hybrid analysis result for a case.
     """
-    return run_symptom_analysis(case_id, db, current_user)
+    patient_case = (
+        db.query(PatientCase)
+        .filter(
+            PatientCase.case_id == case_id,
+            PatientCase.worker_id == current_user.user_id,
+        )
+        .first()
+    )
+
+    if not patient_case:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    result = db.query(AnalysisResult).filter(AnalysisResult.case_id == patient_case.id).first()
+    if not result:
+        raise HTTPException(status_code=404, detail="Analysis result not found")
+
+    # Reconstruct the expected frontend JSON format from the DB record
+    final_probs = json.loads(result.final_probabilities)
+    ranked_conditions = [
+        {"condition": k, "percentage": v}
+        for k, v in sorted(final_probs.items(), key=lambda item: item[1], reverse=True)
+    ]
+    
+    return {
+        "case_id": case_id,
+        "analysis_type": "hybrid_symptom_image_fusion",
+        "ranked_conditions": ranked_conditions,
+        "hybrid_details": {
+            "symptom_probabilities": json.loads(result.symptom_probabilities),
+            "image_probabilities": json.loads(result.image_probabilities) if result.image_probabilities else None,
+            "final_probabilities": final_probs,
+            "final_diagnosis": result.final_diagnosis
+        }
+    }
