@@ -115,36 +115,24 @@ export const api = {
   // Images
   getCaseImages: (caseId) => apiRequest(`/cases/${encodeURIComponent(caseId)}/images/`, 'GET', null, true),
   uploadCaseImages: async (caseId, images) => {
-    const formData = new FormData();
-    
-    // Helper function to convert data URI to Blob reliably (bypasses browser URL length limits)
-    const dataURItoBlob = (dataURI) => {
-      const splitDataURI = dataURI.split(',');
-      const byteString = splitDataURI[0].indexOf('base64') >= 0 ? atob(splitDataURI[1]) : decodeURI(splitDataURI[1]);
-      const mimeString = splitDataURI[0].split(':')[1].split(';')[0];
-      const ia = new Uint8Array(byteString.length);
-      for (let i = 0; i < byteString.length; i++) {
-          ia[i] = byteString.charCodeAt(i);
-      }
-      return new Blob([ia], {type: mimeString});
+    // We send base64 data directly as JSON to bypass FormData browser bugs
+    const payload = {
+      images: images.map(img => ({
+        name: img.name || 'image.jpg',
+        data: img.data
+      }))
     };
-    
-    // Convert base64 data URLs to Blobs
-    for (let i = 0; i < images.length; i++) {
-      const img = images[i];
-      const blob = dataURItoBlob(img.data);
-      formData.append('files', blob, img.name || `image_${i}.jpg`);
-    }
 
     const token = localStorage.getItem('access_token');
-    const response = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}/images/`, {
+    const response = await fetch(`${API_BASE_URL}/cases/${encodeURIComponent(caseId)}/images/base64`, {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${token}`
+        'Authorization': `Bearer ${token}`,
+        'Content-Type': 'application/json'
       },
-      body: formData
+      body: JSON.stringify(payload)
     });
-    
+
     if (!response.ok) {
       let errorMsg = 'Failed to upload images';
       try {
