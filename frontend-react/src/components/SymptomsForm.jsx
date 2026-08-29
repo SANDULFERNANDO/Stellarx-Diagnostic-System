@@ -138,6 +138,11 @@ export default function SymptomsForm() {
       const caseId = newCase.case_id;
       localStorage.setItem('current_case_id', caseId);
 
+      // Upload Images
+      if (images.length > 0) {
+        await api.uploadCaseImages(caseId, images);
+      }
+
       await api.saveSymptoms(caseId, symptomsData);
       const analysisResult = await api.runAnalysis(caseId);
 
