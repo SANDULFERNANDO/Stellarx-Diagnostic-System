@@ -12,6 +12,16 @@ from app.database import get_db
 from app.models import PatientCase, Image, HealthcareWorker
 from app.auth_utils import get_current_user
 from app.services.image_validation import ImageQualityValidator
+import base64
+import io
+from pydantic import BaseModel
+
+class Base64Image(BaseModel):
+    name: str
+    data: str
+
+class Base64UploadRequest(BaseModel):
+    images: List[Base64Image]
 
 router = APIRouter(prefix="/cases/{case_id}/images", tags=["Images"])
 quality_validator = ImageQualityValidator()
@@ -29,7 +39,7 @@ s3_client = boto3.client(
 
 
 @router.post("/")
-async def upload_images(
+def upload_images(
     case_id: str,
     files: List[UploadFile] = File(...),
     db: Session = Depends(get_db),
@@ -98,7 +108,7 @@ async def upload_images(
 
         # 4c. ✅ IMAGE QUALITY VALIDATION
         file.file.seek(0)
-        image_bytes = await file.read()
+        image_bytes = file.file.read()
         file.file.seek(0)
 
         quality_result = quality_validator.validate(image_bytes)
@@ -173,6 +183,101 @@ async def upload_images(
         "total_images": existing_images + len(files)
     }
 
+@router.post("/base64")
+def upload_images_base64(
+    case_id: str,
+    request: Base64UploadRequest,
+    db: Session = Depends(get_db),
+    current_user: HealthcareWorker = Depends(get_current_user)
+):
+    case = db.query(PatientCase).filter(
+        PatientCase.case_id == case_id,
+        PatientCase.worker_id == current_user.user_id
+    ).first()
+
+    if not case:
+        raise HTTPException(status_code=404, detail="Case not found")
+
+    if len(request.images) < 1 or len(request.images) > 5:
+        raise HTTPException(status_code=400, detail="Must provide 1 to 5 images")
+
+    existing_images = db.query(Image).filter(Image.case_id == case.id).count()
+    if existing_images + len(request.images) > 5:
+        raise HTTPException(status_code=400, detail=f"Case already has {existing_images} images. Maximum 5 allowed.")
+
+    uploaded_images = []
+    
+    for index, img in enumerate(request.images):
+        try:
+            # Decode base64 (format: data:image/jpeg;base64,...)
+            header, encoded = img.data.split(",", 1)
+            image_bytes = base64.b64decode(encoded)
+            content_type = header.split(":")[1].split(";")[0]
+        except Exception:
+            raise HTTPException(status_code=400, detail=f"Invalid base64 data for {img.name}")
+
+        if content_type not in ["image/jpeg", "image/png", "image/jpg", "image/webp"]:
+            raise HTTPException(status_code=400, detail=f"Invalid file type: {img.name}. Only JPG, PNG, WEBP allowed.")
+            
+        if len(image_bytes) > 5 * 1024 * 1024:
+            raise HTTPException(status_code=400, detail=f"File too large: {img.name}. Max 5MB.")
+
+        quality_result = quality_validator.validate(image_bytes)
+        if not quality_result['is_valid'] or quality_result['quality_score'] < 50:
+            raise HTTPException(status_code=400, detail=f"Image quality too low for {img.name}: {', '.join(quality_result['issues'])}")
+
+        file_extension = img.name.split(".")[-1] if "." in img.name else "jpg"
+        s3_key = f"cases/{case_id}/image_{index}_{uuid.uuid4()}.{file_extension}"
+
+        try:
+            # Wrap bytes in a file-like object for boto3
+            file_obj = io.BytesIO(image_bytes)
+            s3_client.upload_fileobj(
+                file_obj,
+                S3_BUCKET,
+                s3_key,
+                ExtraArgs={'ContentType': content_type}
+            )
+        except ClientError as e:
+            raise HTTPException(status_code=500, detail=f"Failed to upload {img.name} to S3")
+
+        try:
+            presigned_url = s3_client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': S3_BUCKET, 'Key': s3_key},
+                ExpiresIn=3600
+            )
+        except ClientError:
+            presigned_url = None
+
+        new_image = Image(
+            id=str(uuid.uuid4()),
+            case_id=case.id,
+            s3_key=s3_key,
+            file_name=img.name,
+            file_size=len(image_bytes),
+            content_type=content_type,
+            image_index=existing_images + index
+        )
+
+        db.add(new_image)
+        uploaded_images.append({
+            "id": new_image.id,
+            "file_name": img.name,
+            "s3_key": s3_key,
+            "image_index": new_image.image_index,
+            "url": presigned_url
+        })
+
+    db.commit()
+    return {
+        "success": True,
+        "message": f"Successfully uploaded {len(request.images)} image(s)",
+        "case_id": case_id,
+        "uploaded_images": uploaded_images,
+        "total_images": existing_images + len(request.images)
+    }
+
 
 @router.get("/")
 async def get_images(
@@ -223,7 +328,7 @@ async def get_images(
 
 
 @router.delete("/{image_id}")
-async def delete_image(
+def delete_image(
     case_id: str,
     image_id: str,
     db: Session = Depends(get_db),

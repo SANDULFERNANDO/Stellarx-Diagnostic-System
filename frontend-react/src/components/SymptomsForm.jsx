@@ -140,11 +140,25 @@ export default function SymptomsForm() {
 
       // Upload Images
       if (images.length > 0) {
-        await api.uploadCaseImages(caseId, images);
+        try {
+          await api.uploadCaseImages(caseId, images);
+        } catch (err) {
+          throw new Error(`Image Upload Step Failed: ${err.message}`);
+        }
       }
 
-      await api.saveSymptoms(caseId, symptomsData);
-      const analysisResult = await api.runAnalysis(caseId);
+      try {
+        await api.saveSymptoms(caseId, symptomsData);
+      } catch (err) {
+        throw new Error(`Save Symptoms Step Failed: ${err.message}`);
+      }
+      
+      let analysisResult;
+      try {
+        analysisResult = await api.runAnalysis(caseId);
+      } catch (err) {
+        throw new Error(`Run Analysis Step Failed: ${err.message}`);
+      }
 
       if (!analysisResult || !Array.isArray(analysisResult.ranked_conditions)) {
         throw new Error('Backend returned an invalid analysis result');
