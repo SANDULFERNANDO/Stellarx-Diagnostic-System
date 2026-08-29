@@ -40,7 +40,7 @@ export default function Result() {
           const imagesRes = await api.getCaseImages(caseId);
           if (imagesRes.images && imagesRes.images.length > 0) {
             setImages(imagesRes.images.map(img => ({
-              url: `${api.API_BASE_URL || 'http://127.0.0.1:8081'}/uploads/${caseId}/${img.s3_key ? img.s3_key.split('/').pop() : ''}`
+              url: img.url || `${api.API_BASE_URL || 'http://127.0.0.1:8081'}/uploads/${caseId}/${img.s3_key ? img.s3_key.split('/').pop() : ''}`
             })));
           } else {
             // Fallback to local

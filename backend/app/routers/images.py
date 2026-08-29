@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from typing import List
 import uuid
 import os
+import boto3
+from botocore.exceptions import ClientError
 from datetime import datetime
 
 from app.database import get_db
@@ -13,6 +15,17 @@ from app.services.image_validation import ImageQualityValidator
 
 router = APIRouter(prefix="/cases/{case_id}/images", tags=["Images"])
 quality_validator = ImageQualityValidator()
+
+# Initialize S3 Client
+# We use os.getenv to pull from the .env file variables, OR hardcode directly if preferred.
+# Since the .env file has these variables, it's best to pull them by their variable names:
+S3_BUCKET = os.getenv("AWS_S3_BUCKET_NAME", "stellarx-images-sandul")
+s3_client = boto3.client(
+    's3',
+    aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID", "AKIA4TWFKL6LLXXYKUOM"),
+    aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY", "S4SAGSgqFmGDDm6HCubupG7raekoQwoGXy1HJEL"),
+    region_name=os.getenv("AWS_REGION", "ap-southeast-1")  # Make sure this matches your actual bucket region
+)
 
 
 @router.post("/")
@@ -97,19 +110,37 @@ async def upload_images(
                 detail=f"Image quality too low for {file.filename}: {', '.join(quality_result['issues'])}"
             )
 
-        # 4d. Generate unique S3 key (or local path)
+        # 4d. Generate unique S3 key
         file_extension = file.filename.split(".")[-1] if "." in file.filename else "jpg"
         s3_key = f"cases/{case_id}/image_{index}_{uuid.uuid4()}.{file_extension}"
 
-        # 4e. For now, store locally (since S3 may not be configured)
-        local_path = f"uploads/{case_id}"
-        os.makedirs(local_path, exist_ok=True)
-        local_file_path = f"{local_path}/{s3_key.split('/')[-1]}"
+        # 4e. Upload to AWS S3
+        file.file.seek(0)
+        try:
+            s3_client.upload_fileobj(
+                file.file,
+                S3_BUCKET,
+                s3_key,
+                ExtraArgs={'ContentType': file.content_type}
+            )
+        except ClientError as e:
+            print(f"S3 Upload Error: {e}")
+            raise HTTPException(
+                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                detail=f"Failed to upload {file.filename} to S3"
+            )
+        finally:
+            file.file.seek(0)
 
-        with open(local_file_path, "wb") as f:
-            content = await file.read()
-            f.write(content)
-            file.file.seek(0)  # Reset for possible reuse
+        # Generate presigned URL for response
+        try:
+            presigned_url = s3_client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': S3_BUCKET, 'Key': s3_key},
+                ExpiresIn=3600
+            )
+        except ClientError:
+            presigned_url = None
 
         # 4f. Save to database
         new_image = Image(
@@ -128,7 +159,7 @@ async def upload_images(
             "file_name": file.filename,
             "s3_key": s3_key,
             "image_index": new_image.image_index,
-            "local_path": local_file_path
+            "url": presigned_url
         })
 
     # 5. Commit all changes
@@ -149,7 +180,7 @@ async def get_images(
     db: Session = Depends(get_db),
     current_user: HealthcareWorker = Depends(get_current_user)
 ):
-    """Get all images for a case"""
+    """Get all images for a case, returning presigned S3 URLs"""
     case = db.query(PatientCase).filter(
         PatientCase.case_id == case_id,
         PatientCase.worker_id == current_user.user_id
@@ -162,20 +193,31 @@ async def get_images(
         )
 
     images = db.query(Image).filter(Image.case_id == case.id).order_by(Image.image_index).all()
+    
+    result_images = []
+    for img in images:
+        try:
+            url = s3_client.generate_presigned_url(
+                'get_object',
+                Params={'Bucket': S3_BUCKET, 'Key': img.s3_key},
+                ExpiresIn=3600
+            )
+        except ClientError:
+            url = None
+            
+        result_images.append({
+            "id": img.id,
+            "file_name": img.file_name,
+            "s3_key": img.s3_key,
+            "image_index": img.image_index,
+            "uploaded_at": img.uploaded_at,
+            "url": url
+        })
 
     return {
         "success": True,
         "case_id": case_id,
-        "images": [
-            {
-                "id": img.id,
-                "file_name": img.file_name,
-                "s3_key": img.s3_key,
-                "image_index": img.image_index,
-                "uploaded_at": img.uploaded_at
-            }
-            for img in images
-        ],
+        "images": result_images,
         "total": len(images)
     }
 
@@ -187,7 +229,7 @@ async def delete_image(
     db: Session = Depends(get_db),
     current_user: HealthcareWorker = Depends(get_current_user)
 ):
-    """Delete a specific image"""
+    """Delete a specific image from S3 and Database"""
     case = db.query(PatientCase).filter(
         PatientCase.case_id == case_id,
         PatientCase.worker_id == current_user.user_id
@@ -210,7 +252,17 @@ async def delete_image(
             detail="Image not found"
         )
 
-    # Delete from database (and optionally delete file)
+    # 1. Delete from S3
+    try:
+        s3_client.delete_object(
+            Bucket=S3_BUCKET,
+            Key=image.s3_key
+        )
+    except ClientError as e:
+        print(f"Error deleting object from S3: {e}")
+        # Proceed to delete from DB anyway so we don't have zombie records
+
+    # 2. Delete from database
     db.delete(image)
     db.commit()
 
