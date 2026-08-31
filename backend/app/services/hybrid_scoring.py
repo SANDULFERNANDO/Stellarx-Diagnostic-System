@@ -2,26 +2,32 @@ import random
 import json
 from typing import Dict, Any
 
-def mock_image_prediction(case_id: str) -> Dict[str, float]:
+from app.services.ml_inference import ml_service
+import os
+
+def get_real_image_prediction(s3_keys: list) -> Dict[str, float]:
     """
-    Mock image prediction function for testing hybrid pipeline.
-    Randomly generates probabilities for the three target diseases.
+    Get real image predictions from the TensorFlow model using S3 images.
+    Maps the ML classes to match the symptom model expectations.
     """
-    # Seed randomly using case_id string so it's deterministic per case
-    random.seed(case_id)
+    if not s3_keys:
+        return {
+            "Tinea Infection": 33.33,
+            "Leishmaniasis": 33.33,
+            "Eczema": 33.34
+        }
+        
+    s3_bucket = os.getenv("AWS_S3_BUCKET_NAME", "stellarx-images-sandul")
+    ml_probs = ml_service.predict_from_s3_keys(s3_keys, s3_bucket)
     
-    # Generate random raw scores
-    raw_scores = {
-        "Tinea Infection": random.uniform(0.1, 0.9),
-        "Leishmaniasis": random.uniform(0.1, 0.9),
-        "Eczema": random.uniform(0.1, 0.9)
+    # Map ML classes to expected keys
+    mapped_probs = {
+        "Eczema": ml_probs.get("Eczema", 0.0),
+        "Leishmaniasis": ml_probs.get("Leishmaniasis", 0.0),
+        "Tinea Infection": ml_probs.get("Tinea", 0.0)
     }
     
-    # Normalize to 1.0
-    total = sum(raw_scores.values())
-    normalized = {k: round((v / total) * 100, 2) for k, v in raw_scores.items()}
-    
-    return normalized
+    return mapped_probs
 
 def fuse_predictions(symptom_probs: Dict[str, float], image_probs: Dict[str, float]) -> Dict[str, Any]:
     """
