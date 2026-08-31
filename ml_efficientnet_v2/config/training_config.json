@@ -1,0 +1,20 @@
+{
+    "image_size": [300, 300],
+    "batch_size": 16,
+    "seed": 42,
+    "classes": [
+        "Eczema",
+        "Leishmaniasis",
+        "Tinea",
+        "others"
+    ],
+    "augmentation": {
+        "random_flip": "horizontal",
+        "random_rotation": 0.1,
+        "random_zoom": 0.1
+    },
+    "learning_rate_stage1": 1e-4,
+    "learning_rate_stage2": 1e-5,
+    "epochs_stage1": 15,
+    "epochs_stage2": 15
+}
