@@ -1,0 +1,83 @@
+{
+    "model_name": "EfficientNetB3",
+    "number_of_classes": 4,
+    "class_names": [
+        "Eczema",
+        "Leishmaniasis",
+        "Tinea",
+        "others"
+    ],
+    "test_dataset_size": 1001,
+    "test_accuracy": 0.8851148851148851,
+    "macro_precision": 0.8876596934613046,
+    "macro_recall": 0.9006238665707915,
+    "macro_f1": 0.8936805512028227,
+    "weighted_precision": 0.884518804456421,
+    "weighted_recall": 0.8851148851148851,
+    "weighted_f1": 0.8845925665024882,
+    "per_class_metrics": {
+        "Eczema": {
+            "precision": 0.8129770992366412,
+            "recall": 0.7888888888888889,
+            "f1-score": 0.8007518796992481,
+            "support": 270.0
+        },
+        "Leishmaniasis": {
+            "precision": 0.9203539823008849,
+            "recall": 1.0,
+            "f1-score": 0.9585253456221198,
+            "support": 104.0
+        },
+        "Tinea": {
+            "precision": 0.8173076923076923,
+            "recall": 0.819935691318328,
+            "f1-score": 0.8186195826645265,
+            "support": 311.0
+        },
+        "others": {
+            "precision": 1.0,
+            "recall": 0.9936708860759493,
+            "f1-score": 0.9968253968253968,
+            "support": 316.0
+        },
+        "accuracy": 0.8851148851148851,
+        "macro avg": {
+            "precision": 0.8876596934613046,
+            "recall": 0.9006238665707915,
+            "f1-score": 0.8936805512028227,
+            "support": 1001.0
+        },
+        "weighted avg": {
+            "precision": 0.884518804456421,
+            "recall": 0.8851148851148851,
+            "f1-score": 0.8845925665024882,
+            "support": 1001.0
+        }
+    },
+    "roc_auc_values": {
+        "Eczema": 0.9575011399908802,
+        "Leishmaniasis": 0.9994854643684076,
+        "Tinea": 0.9564052378955217,
+        "others": 0.9999861406264438
+    },
+    "average_precision_values": {
+        "Eczema": 0.8975927899656091,
+        "Leishmaniasis": 0.9957042094948791,
+        "Tinea": 0.89194081565861,
+        "others": 0.9999700827052591
+    },
+    "total_correct": 886,
+    "total_incorrect": 115,
+    "most_common_error": "Actual Eczema predicted as Tinea (57 times)",
+    "others_rejection_metrics": {
+        "Total Others Images": 316,
+        "Correctly Rejected (Predicted as Others)": 314,
+        "Others Recall (True Negative Rate for diseases)": 0.9936708860759493,
+        "Others Precision": 1.0,
+        "Others F1-Score": 0.9968253968253968,
+        "Valid Disease Images Incorrectly Rejected": 0,
+        "Others Images Incorrectly Predicted as Eczema": 0,
+        "Others Images Incorrectly Predicted as Leishmaniasis": 2,
+        "Others Images Incorrectly Predicted as Tinea": 0
+    }
+}

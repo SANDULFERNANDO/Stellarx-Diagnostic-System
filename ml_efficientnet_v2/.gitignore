@@ -1,0 +1,24 @@
+# Virtual Environment
+.venv/
+.venv_311/
+__pycache__/
+*.pyc
+
+# Data
+processed_data/
+*.zip
+*.rar
+*.tar.gz
+
+# ML Artifacts (Large Files)
+artifacts/models/*.keras
+artifacts/models/*.h5
+artifacts/models/*.pb
+artifacts/checkpoints/*.keras
+artifacts/checkpoints/*.ckpt*
+
+# IDE/OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

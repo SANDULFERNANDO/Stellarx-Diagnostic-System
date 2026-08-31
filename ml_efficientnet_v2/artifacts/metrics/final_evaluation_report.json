@@ -1,0 +1,48 @@
+{
+    "classification_metrics": {
+        "Eczema": {
+            "precision": 0.8129770992366412,
+            "recall": 0.7888888888888889,
+            "f1-score": 0.8007518796992481,
+            "support": 270.0
+        },
+        "Leishmaniasis": {
+            "precision": 0.9203539823008849,
+            "recall": 1.0,
+            "f1-score": 0.9585253456221198,
+            "support": 104.0
+        },
+        "Tinea": {
+            "precision": 0.8173076923076923,
+            "recall": 0.819935691318328,
+            "f1-score": 0.8186195826645265,
+            "support": 311.0
+        },
+        "others": {
+            "precision": 1.0,
+            "recall": 0.9936708860759493,
+            "f1-score": 0.9968253968253968,
+            "support": 316.0
+        },
+        "accuracy": 0.8851148851148851,
+        "macro avg": {
+            "precision": 0.8876596934613046,
+            "recall": 0.9006238665707915,
+            "f1-score": 0.8936805512028227,
+            "support": 1001.0
+        },
+        "weighted avg": {
+            "precision": 0.884518804456421,
+            "recall": 0.8851148851148851,
+            "f1-score": 0.8845925665024882,
+            "support": 1001.0
+        }
+    },
+    "others_evaluation": {
+        "correct_rejections": 314,
+        "total_true_others": 316,
+        "rejection_accuracy": 0.9936708860759493,
+        "false_rejections_of_valid_diseases": 0,
+        "others_falsely_classified_as_disease": 2
+    }
+}
