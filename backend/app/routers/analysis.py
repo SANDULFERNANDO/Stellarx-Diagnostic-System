@@ -6,9 +6,9 @@ from sqlalchemy.orm import Session
 
 from app.auth_utils import get_current_user
 from app.database import get_db
-from app.models import HealthcareWorker, PatientCase, Symptom, AnalysisResult
+from app.models import HealthcareWorker, PatientCase, Symptom, AnalysisResult, Image
 from app.services.symptom_scoring import analyse_symptoms
-from app.services.hybrid_scoring import mock_image_prediction, fuse_predictions
+from app.services.hybrid_scoring import get_real_image_prediction, fuse_predictions
 import json
 
 # Configure module logger
@@ -135,8 +135,12 @@ def run_symptom_analysis(
             for item in symptom_result.get("ranked_conditions", [])
         }
         
-        # 3b. Run Mock Image Model
-        image_probs = mock_image_prediction(case_id)
+        # Fetch image S3 keys for the case
+        images = db.query(Image).filter(Image.case_id == patient_case.id).all()
+        s3_keys = [img.s3_key for img in images]
+        
+        # 3b. Run Real Image Model
+        image_probs = get_real_image_prediction(s3_keys)
         
         # 3c. Fuse Predictions
         fusion_result = fuse_predictions(symptom_probs, image_probs)
