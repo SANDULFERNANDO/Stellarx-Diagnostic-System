@@ -142,6 +142,13 @@ def run_symptom_analysis(
         # 3b. Run Real Image Model
         image_probs = get_real_image_prediction(s3_keys)
         
+        # Check if the image is primarily an object/non-lesion
+        if image_probs.get("Others", 0.0) >= max(image_probs.get("Eczema", 0.0), image_probs.get("Leishmaniasis", 0.0), image_probs.get("Tinea Infection", 0.0)):
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Please upload a skin lesion or anything related to the symptoms. The uploaded image appears to be an object."
+            )
+            
         # 3c. Fuse Predictions
         fusion_result = fuse_predictions(symptom_probs, image_probs)
         
@@ -190,6 +197,9 @@ def run_symptom_analysis(
         
         db.commit()
 
+    except HTTPException:
+        # Re-raise HTTPExceptions so they are handled correctly by FastAPI
+        raise
     except Exception as e:
         logger.error(
             f"Analysis failed for case {case_id}: {str(e)}",

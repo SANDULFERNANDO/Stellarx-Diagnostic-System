@@ -14,7 +14,8 @@ def get_real_image_prediction(s3_keys: list) -> Dict[str, float]:
         return {
             "Tinea Infection": 33.33,
             "Leishmaniasis": 33.33,
-            "Eczema": 33.34
+            "Eczema": 33.34,
+            "Others": 0.0
         }
         
     s3_bucket = os.getenv("AWS_S3_BUCKET_NAME", "stellarx-images-sandul")
@@ -24,7 +25,8 @@ def get_real_image_prediction(s3_keys: list) -> Dict[str, float]:
     mapped_probs = {
         "Eczema": ml_probs.get("Eczema", 0.0),
         "Leishmaniasis": ml_probs.get("Leishmaniasis", 0.0),
-        "Tinea Infection": ml_probs.get("Tinea", 0.0)
+        "Tinea Infection": ml_probs.get("Tinea", 0.0),
+        "Others": ml_probs.get("Others", 0.0)
     }
     
     return mapped_probs

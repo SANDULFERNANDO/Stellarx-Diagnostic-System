@@ -65,7 +65,8 @@ class MLModelService:
             return {
                 "Eczema": 33.34,
                 "Leishmaniasis": 33.33,
-                "Tinea": 33.33
+                "Tinea": 33.33,
+                "Others": 0.0
             }
         
         # Initialize S3 client
@@ -91,8 +92,8 @@ class MLModelService:
                 predictions = self._model.predict(img_array, verbose=0)[0]
                 results = {class_name: float(prob) for class_name, prob in zip(self._classes, predictions)}
                 
-                # Extract probabilities for the 3 target classes, ignoring "others"
-                valid_predictions.append([results["Eczema"], results["Leishmaniasis"], results["Tinea"]])
+                # Extract probabilities for the 4 target classes
+                valid_predictions.append([results["Eczema"], results["Leishmaniasis"], results["Tinea"], results["others"]])
                 
             except Exception as e:
                 print(f"Error predicting image {key}: {e}")
@@ -102,10 +103,11 @@ class MLModelService:
             return {
                 "Eczema": 0.0,
                 "Leishmaniasis": 0.0,
-                "Tinea": 0.0
+                "Tinea": 0.0,
+                "Others": 0.0
             }
             
-        # Mean probability aggregation over the 3 target classes
+        # Mean probability aggregation over the 4 target classes
         mean_probs = np.mean(valid_predictions, axis=0)
         
         # Normalize the probabilities so they sum to 1.0
@@ -118,7 +120,8 @@ class MLModelService:
         return {
             "Eczema": float(normalized_probs[0]) * 100,
             "Leishmaniasis": float(normalized_probs[1]) * 100,
-            "Tinea": float(normalized_probs[2]) * 100
+            "Tinea": float(normalized_probs[2]) * 100,
+            "Others": float(normalized_probs[3]) * 100
         }
 
 # Singleton instance
