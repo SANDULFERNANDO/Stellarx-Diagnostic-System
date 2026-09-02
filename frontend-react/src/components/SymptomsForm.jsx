@@ -295,7 +295,10 @@ export default function SymptomsForm() {
                   </AnimatePresence>
                   
                   {images.length < 5 && (
-                    <div className="w-24 h-24 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:text-brand-primary hover:border-brand-primary hover:bg-white transition-colors cursor-pointer pointer-events-auto">
+                    <div 
+                      onClick={() => fileInputRef.current?.click()}
+                      className="w-24 h-24 rounded-xl border-2 border-dashed border-slate-300 flex flex-col items-center justify-center text-slate-400 hover:text-brand-primary hover:border-brand-primary hover:bg-white transition-colors cursor-pointer pointer-events-auto"
+                    >
                       <Plus className="w-6 h-6 mb-1" />
                       <span className="text-[10px] font-bold uppercase tracking-wider">Add More</span>
                     </div>
